@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/data/local/app_database.dart';
-import 'package:divefriend/data/repositories/dummy_spot_repository.dart';
+import 'package:divefriend/data/repositories/sqlite_spot_repository.dart';
 import 'package:divefriend/data/repositories/sqlite_user_repository.dart';
 import 'package:divefriend/features/auth/login_screen.dart';
 import 'package:divefriend/features/home/home_screen.dart';
@@ -13,9 +13,11 @@ import 'package:divefriend/services/biometric_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Satu-satunya tempat sumber data dipilih. Tahap 3 mengganti spot ke SQLite.
+  final spotRepository = SqliteSpotRepository(AppDatabase.instance);
+  await spotRepository.ensureSeeded();
+
   final services = AppServices(
-    spots: DummySpotRepository(),
+    spots: spotRepository,
     auth: AuthService(SqliteUserRepository(AppDatabase.instance), BiometricService()),
   );
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/level_badge.dart';
+import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/shared/placeholder_screen.dart';
 
@@ -25,6 +25,13 @@ class SpotDetailScreen extends StatelessWidget {
     return price == null ? _unavailable : 'Rp $price';
   }
 
+  String get _coordinateText {
+    final latitude = spot.latitude;
+    final longitude = spot.longitude;
+    if (latitude == null || longitude == null) return _unavailable;
+    return '${latitude.toStringAsFixed(3)}, ${longitude.toStringAsFixed(3)} (titik pusat kawasan)';
+  }
+
   String get _biotaText =>
       spot.biota.isEmpty ? _unavailable : spot.biota.join(', ');
 
@@ -40,28 +47,23 @@ class SpotDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final photo = spot.photo;
+    final summary = spot.summary;
+
     return Scaffold(
       appBar: AppBar(title: Text(spot.name)),
       body: ListView(
         children: [
           const DisclaimerBanner(),
-          Container(
-            height: 160,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.navy, AppColors.teal],
+          SpotPhotoView(photo: photo, height: 200),
+          if (photo != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+              child: Text(
+                'Foto: ${photo.credit} (${photo.license})',
+                style: const TextStyle(fontSize: 11),
               ),
             ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.waves, size: 56, color: Colors.white),
-                SizedBox(height: 4),
-                Text('Foto belum tersedia',
-                    style: TextStyle(color: Colors.white)),
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -83,15 +85,18 @@ class SpotDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(spot.region),
-                if (spot.isDummy) ...[
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Data dummy untuk uji tampilan. Data tersumber diisi di Tahap 3.',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
+                const SizedBox(height: 4),
+                Text(
+                  'Dasar level: ${spot.levelBasis}',
+                  style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                ),
+                if (summary != null) ...[
+                  const SizedBox(height: 16),
+                  Text(summary),
                 ],
                 const SizedBox(height: 16),
                 _InfoRow(label: 'Jenis', value: _typesText),
+                _InfoRow(label: 'Koordinat', value: _coordinateText),
                 _InfoRow(label: 'Kedalaman', value: _depthText),
                 _InfoRow(
                   label: 'Musim terbaik',
@@ -103,7 +108,6 @@ class SpotDetailScreen extends StatelessWidget {
                   label: 'Zona waktu',
                   value: spot.timeZoneLabel ?? _unavailable,
                 ),
-                _InfoRow(label: 'Sumber data', value: spot.source ?? _unavailable),
                 const Divider(height: 32),
                 const _InfoRow(
                   label: 'Gelombang hari ini',
@@ -134,6 +138,17 @@ class SpotDetailScreen extends StatelessWidget {
                     child: const Text('Booking'),
                   ),
                 ),
+                const Divider(height: 32),
+                const Text(
+                  'Sumber data',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                for (final source in spot.sources)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('- $source', style: const TextStyle(fontSize: 12)),
+                  ),
               ],
             ),
           ),

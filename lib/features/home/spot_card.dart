@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/core/widgets/level_badge.dart';
+import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
 
-/// Kartu spot di Beranda: area foto, nama, wilayah, lencana level.
-/// Foto masih placeholder: gambar hanya dipakai dari sumber berlisensi terbuka (Tahap 3).
+/// Kartu spot di Beranda: foto (lencana level di pojok), nama, dan wilayah.
 class SpotCard extends StatelessWidget {
   const SpotCard({super.key, required this.spot, required this.onTap});
 
@@ -22,37 +21,36 @@ class SpotCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 110,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.navy, AppColors.teal],
+            Stack(
+              children: [
+                SpotPhotoView(photo: spot.photo, height: 150),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: LevelBadge(level: spot.level),
                 ),
-              ),
-              child: const Icon(Icons.waves, size: 48, color: Colors.white),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          spot.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(spot.region),
-                      ],
+                  Text(
+                    spot.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  LevelBadge(level: spot.level),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.place_outlined, size: 16),
+                      const SizedBox(width: 4),
+                      Text(spot.region),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:divefriend/app_services.dart';
-import 'package:divefriend/data/repositories/dummy_spot_repository.dart';
+import 'package:divefriend/data/seed/spots_seed.dart';
 import 'package:divefriend/main.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'fakes.dart';
@@ -19,7 +19,7 @@ Future<void> _pumpApp(WidgetTester tester) async {
     () => auth.register(name: 'Budi', username: 'budi', password: 'password123'),
   );
   final services = AppServices(
-    spots: DummySpotRepository(simulatedDelay: Duration.zero),
+    spots: InMemorySpotRepository(spotsSeed),
     auth: auth,
   );
   await tester.pumpWidget(DiveFriendApp(services: services));
@@ -42,7 +42,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Wajib diisi'), findsWidgets);
-    expect(find.text('Bunaken'), findsNothing);
+    expect(find.text('Taman Nasional Bunaken'), findsNothing);
   });
 
   testWidgets('password salah menampilkan pesan error', (tester) async {
@@ -50,14 +50,14 @@ void main() {
     await _login(tester, 'budi', 'salah-salah');
 
     expect(find.text('Username atau password salah'), findsOneWidget);
-    expect(find.text('Bunaken'), findsNothing);
+    expect(find.text('Taman Nasional Bunaken'), findsNothing);
   });
 
   testWidgets('login benar membuka Beranda berisi daftar spot', (tester) async {
     await _pumpApp(tester);
     await _login(tester, 'budi', 'password123');
 
-    expect(find.text('Bunaken'), findsOneWidget);
+    expect(find.text('Taman Nasional Bunaken'), findsOneWidget);
   });
 
   testWidgets('pencarian tanpa hasil menampilkan state kosong', (tester) async {
@@ -78,6 +78,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Raja Ampat'), findsOneWidget);
-    expect(find.text('Tulamben'), findsNothing);
+    expect(find.text('Wakatobi'), findsNothing);
   });
 }
