@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
-import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/features/auth/login_screen.dart';
 import 'package:divefriend/features/profile/feedback_screen.dart';
 import 'package:divefriend/features/profile/profile_screen.dart';
@@ -17,9 +17,9 @@ class _FutureFeature {
 
 /// Menu navigasi utama: fitur mendatang, Profil, Saran & Kesan, Logout.
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.spotRepository});
+  const AppDrawer({super.key, required this.services});
 
-  final SpotRepository spotRepository;
+  final AppServices services;
 
   static const List<_FutureFeature> _futureFeatures = [
     _FutureFeature(Icons.currency_exchange, 'Konversi', 4),
@@ -36,17 +36,19 @@ class AppDrawer extends StatelessWidget {
     navigator.push(MaterialPageRoute<void>(builder: (_) => page));
   }
 
-  void _logout(BuildContext context) {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(
-        builder: (_) => LoginScreen(spotRepository: spotRepository),
-      ),
+  Future<void> _logout(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    await services.auth.logout();
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => LoginScreen(services: services)),
       (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = services.auth.currentUser;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -54,18 +56,24 @@ class AppDrawer extends StatelessWidget {
           Container(
             color: AppColors.navy,
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-            child: const Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.waves, color: Colors.white, size: 36),
-                SizedBox(width: 12),
+                const Icon(Icons.waves, color: Colors.white, size: 36),
+                const SizedBox(height: 8),
                 Text(
-                  'DiveFriend',
-                  style: TextStyle(
+                  user?.name ?? 'DiveFriend',
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (user != null)
+                  Text(
+                    '@${user.username}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
               ],
             ),
           ),
@@ -87,7 +95,7 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Profil'),
-            onTap: () => _openPage(context, const ProfileScreen()),
+            onTap: () => _openPage(context, ProfileScreen(services: services)),
           ),
           ListTile(
             leading: const Icon(Icons.rate_review),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
+import 'package:divefriend/services/auth_service.dart';
 
-/// Tahap 1: tampilan + validasi form saja. Penyimpanan ke tabel users di Tahap 2.
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, required this.services});
+
+  final AppServices services;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -16,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -33,13 +37,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final navigator = Navigator.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Form valid. Akun asli dibuat di Tahap 2.')),
-    );
-    navigator.pop();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isLoading = true);
+    try {
+      await widget.services.auth.register(
+        name: _nameController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+      );
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Akun dibuat. Silakan masuk.')),
+      );
+      navigator.pop();
+    } on AuthException catch (error) {
+      messenger.showSnackBar(SnackBar(content: Text(error.message)));
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -85,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: _submit,
+                  onPressed: _isLoading ? null : _submit,
                   child: const Text('Daftar'),
                 ),
               ),

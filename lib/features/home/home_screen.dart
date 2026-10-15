@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/state_message.dart';
 import 'package:divefriend/data/models/spot.dart';
-import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/features/home/spot_card.dart';
 import 'package:divefriend/features/navigation/app_drawer.dart';
 import 'package:divefriend/features/spot/spot_detail_screen.dart';
@@ -11,9 +11,9 @@ import 'package:divefriend/features/spot/spot_detail_screen.dart';
 /// Beranda: daftar spot + pencarian + filter level.
 /// Layar ini hanya bicara ke SpotRepository, tidak tahu data berasal dari mana.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.spotRepository});
+  const HomeScreen({super.key, required this.services});
 
-  final SpotRepository spotRepository;
+  final AppServices services;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -37,17 +37,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<Spot>> _fetchSpots() {
-    return widget.spotRepository.getSpots(
+    return widget.services.spots.getSpots(
       query: _searchController.text,
       level: _selectedLevel,
     );
   }
 
-  void _reload() {
-  setState(() {
-    _spotsFuture = _fetchSpots();
-  });
-}
+    void _reload() {
+    setState(() {
+      _spotsFuture = _fetchSpots();
+    });
+  }
 
   void _selectLevel(SpotLevel? level) {
     setState(() {
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('DiveFriend')),
-      drawer: AppDrawer(spotRepository: widget.spotRepository),
+      drawer: AppDrawer(services: widget.services),
       body: Column(
         children: [
           const DisclaimerBanner(),

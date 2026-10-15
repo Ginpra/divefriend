@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
-import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/features/auth/register_screen.dart';
 import 'package:divefriend/features/home/home_screen.dart';
+import 'package:divefriend/services/auth_service.dart';
 
-/// Tahap 1: tampilan saja. Autentikasi asli (hash + salt, session) dibuat di Tahap 2.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.spotRepository});
+  const LoginScreen({super.key, required this.services});
 
-  final SpotRepository spotRepository;
+  final AppServices services;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -20,6 +20,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  bool _canUseBiometric = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.services.auth.canLoginWithBiometric().then((canUse) {
+      if (mounted) setState(() => _canUseBiometric = canUse);
+    });
+  }
 
   @override
   void dispose() {
@@ -28,18 +38,49 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _goHome() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => HomeScreen(spotRepository: widget.spotRepository),
+        builder: (_) => HomeScreen(services: widget.services),
       ),
     );
   }
 
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      await widget.services.auth.login(
+        _usernameController.text,
+        _passwordController.text,
+      );
+      if (mounted) _goHome();
+    } on AuthException catch (error) {
+      if (mounted) _showMessage(error.message);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loginWithBiometric() async {
+    final user = await widget.services.auth.loginWithBiometric();
+    if (!mounted) return;
+    if (user == null) {
+      _showMessage('Verifikasi biometrik gagal atau dibatalkan');
+      return;
+    }
+    _goHome();
+  }
+
   void _openRegister() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const RegisterScreen()),
+      MaterialPageRoute<void>(
+        builder: (_) => RegisterScreen(services: widget.services),
+      ),
     );
   }
 
@@ -59,11 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text(
                     'DiveFriend',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Tahap 1: tampilan saja, login asli di Tahap 2',
-                    style: TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
@@ -94,10 +130,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: _submit,
-                      child: const Text('Masuk'),
+                      onPressed: _isLoading ? null : _submit,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Masuk'),
                     ),
                   ),
+                  if (_canUseBiometric)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: OutlinedButton.icon(
+                        onPressed: _loginWithBiometric,
+                        icon: const Icon(Icons.fingerprint),
+                        label: const Text('Masuk dengan biometrik'),
+                      ),
+                    ),
                   TextButton(
                     onPressed: _openRegister,
                     child: const Text('Belum punya akun? Daftar'),
