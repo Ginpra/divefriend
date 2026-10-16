@@ -49,6 +49,7 @@ class SpotDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final photo = spot.photo;
     final summary = spot.summary;
+    final history = spot.history;
 
     return Scaffold(
       appBar: AppBar(title: Text(spot.name)),
@@ -92,7 +93,16 @@ class SpotDetailScreen extends StatelessWidget {
                 ),
                 if (summary != null) ...[
                   const SizedBox(height: 16),
-                  Text(summary),
+                  Text(summary, style: const TextStyle(height: 1.4)),
+                ],
+                if (history != null) ...[
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Sejarah singkat',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(history, style: const TextStyle(height: 1.4)),
                 ],
                 const SizedBox(height: 16),
                 _InfoRow(label: 'Jenis', value: _typesText),

@@ -69,6 +69,7 @@ class SqliteSpotRepository implements SpotRepository {
       'level_basis': spot.levelBasis,
       'types': spot.types.map((type) => type.name).join(','),
       'summary': spot.summary,
+      'history': spot.history,
       'depth_m': spot.depthMeters,
       'best_season': spot.bestSeason,
       'biota': jsonEncode(spot.biota),
@@ -97,6 +98,7 @@ class SqliteSpotRepository implements SpotRepository {
           .map((name) => SpotType.values.byName(name))
           .toList(),
       summary: row['summary'] as String?,
+      history: row['history'] as String?,
       depthMeters: row['depth_m'] as double?,
       bestSeason: row['best_season'] as String?,
       biota: (jsonDecode(row['biota'] as String) as List<dynamic>).cast<String>(),

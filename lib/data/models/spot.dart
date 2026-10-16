@@ -42,6 +42,7 @@ class Spot {
     required this.types,
     required this.sources,
     this.summary,
+    this.history,
     this.depthMeters,
     this.bestSeason,
     this.biota = const [],
@@ -64,6 +65,9 @@ class Spot {
   /// Daftar sumber data spot ini (nama + alamat), wajib minimal satu.
   final List<String> sources;
   final String? summary;
+
+  /// Sejarah singkat kawasan (bila sumbernya ada).
+  final String? history;
   final double? depthMeters;
   final String? bestSeason;
   final List<String> biota;
