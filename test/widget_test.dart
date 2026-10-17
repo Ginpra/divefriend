@@ -42,7 +42,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Wajib diisi'), findsWidgets);
-    expect(find.text('Kepulauan Derawan'), findsNothing);
+    expect(find.text('Kepulauan Banda'), findsNothing);
   });
 
   testWidgets('password salah menampilkan pesan error', (tester) async {
@@ -50,14 +50,14 @@ void main() {
     await _login(tester, 'budi', 'salah-salah');
 
     expect(find.text('Username atau password salah'), findsOneWidget);
-    expect(find.text('Kepulauan Derawan'), findsNothing);
+    expect(find.text('Kepulauan Banda'), findsNothing);
   });
 
   testWidgets('login benar membuka Beranda berisi daftar spot', (tester) async {
     await _pumpApp(tester);
     await _login(tester, 'budi', 'password123');
 
-    expect(find.text('Kepulauan Derawan'), findsOneWidget);
+    expect(find.text('Kepulauan Banda'), findsOneWidget);
   });
 
   testWidgets('pencarian tanpa hasil menampilkan state kosong', (tester) async {

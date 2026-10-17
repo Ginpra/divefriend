@@ -15,19 +15,20 @@ enum SpotType {
   final String label;
 }
 
-/// Foto spot beserta atribusinya (wajib untuk gambar berlisensi terbuka).
+/// Foto spot. Kredit dan lisensi opsional: isi keduanya bila foto berlisensi terbuka
+/// yang mewajibkan atribusi (contoh CC BY-SA), kosongkan bila tidak perlu ditampilkan.
 class SpotPhoto {
   const SpotPhoto({
     required this.url,
-    required this.credit,
-    required this.license,
-    required this.sourceUrl,
+    this.credit,
+    this.license,
+    this.sourceUrl,
   });
 
   final String url;
-  final String credit;
-  final String license;
-  final String sourceUrl;
+  final String? credit;
+  final String? license;
+  final String? sourceUrl;
 }
 
 /// Satu spot selam. Field opsional bernilai null = data belum tersedia
@@ -40,10 +41,10 @@ class Spot {
     required this.level,
     required this.levelBasis,
     required this.types,
+    required this.tagline,
+    required this.summary,
     required this.sources,
-    this.summary,
-    this.history,
-    this.depthMeters,
+    this.depthText,
     this.bestSeason,
     this.biota = const [],
     this.priceEstimateIdr,
@@ -62,13 +63,18 @@ class Spot {
   final String levelBasis;
   final List<SpotType> types;
 
+  /// Satu kalimat pembuka yang muncul di kartu dan di atas halaman detail.
+  final String tagline;
+
+  /// Deskripsi lengkap. Paragraf dipisah baris kosong (dua kali newline).
+  final String summary;
+
   /// Daftar sumber data spot ini (nama + alamat), wajib minimal satu.
   final List<String> sources;
-  final String? summary;
 
-  /// Sejarah singkat kawasan (bila sumbernya ada).
-  final String? history;
-  final double? depthMeters;
+  /// Kedalaman dalam bentuk teks (contoh: "Sekitar 5-30 m"), karena tiap sumber
+  /// menyebut kedalaman dengan cara berbeda (dinding, bangkai kapal, rentang).
+  final String? depthText;
   final String? bestSeason;
   final List<String> biota;
   final int? priceEstimateIdr;

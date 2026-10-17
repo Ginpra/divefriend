@@ -2,14 +2,15 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// Pintu tunggal ke database SQLite lokal.
-/// Versi 1: tabel users. Versi 2: tabel spots + meta. Versi 3: kolom history di spots.
-/// Tahap berikutnya menambah tabel di sini dan menaikkan nomor versi.
+/// Versi 1: tabel users. Versi 2: tabel spots + meta. Versi 4: struktur tabel spots dirapikan.
+/// Tabel spots hanyalah salinan dari data seed, jadi saat strukturnya berubah
+/// tabelnya dibuat ulang dan datanya dimuat lagi otomatis.
 class AppDatabase {
   AppDatabase._();
 
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 3;
+  static const int _version = 4;
 
   Database? _database;
 
@@ -27,8 +28,10 @@ class AppDatabase {
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await _createSpotTables(db);
-        } else if (oldVersion < 3) {
-          await db.execute('ALTER TABLE spots ADD COLUMN history TEXT');
+        } else if (oldVersion < 4) {
+          await db.execute('DROP TABLE IF EXISTS spots');
+          await db.execute('DROP TABLE IF EXISTS meta');
+          await _createSpotTables(db);
         }
       },
     );
@@ -56,9 +59,9 @@ class AppDatabase {
         level TEXT NOT NULL,
         level_basis TEXT NOT NULL,
         types TEXT NOT NULL,
-        summary TEXT,
-        history TEXT,
-        depth_m REAL,
+        tagline TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        depth_text TEXT,
         best_season TEXT,
         biota TEXT NOT NULL,
         price_idr INTEGER,

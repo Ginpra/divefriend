@@ -68,9 +68,9 @@ class SqliteSpotRepository implements SpotRepository {
       'level': spot.level.name,
       'level_basis': spot.levelBasis,
       'types': spot.types.map((type) => type.name).join(','),
+      'tagline': spot.tagline,
       'summary': spot.summary,
-      'history': spot.history,
-      'depth_m': spot.depthMeters,
+      'depth_text': spot.depthText,
       'best_season': spot.bestSeason,
       'biota': jsonEncode(spot.biota),
       'price_idr': spot.priceEstimateIdr,
@@ -97,9 +97,9 @@ class SqliteSpotRepository implements SpotRepository {
           .split(',')
           .map((name) => SpotType.values.byName(name))
           .toList(),
-      summary: row['summary'] as String?,
-      history: row['history'] as String?,
-      depthMeters: row['depth_m'] as double?,
+      tagline: row['tagline'] as String,
+      summary: row['summary'] as String,
+      depthText: row['depth_text'] as String?,
       bestSeason: row['best_season'] as String?,
       biota: (jsonDecode(row['biota'] as String) as List<dynamic>).cast<String>(),
       priceEstimateIdr: row['price_idr'] as int?,
@@ -111,9 +111,9 @@ class SqliteSpotRepository implements SpotRepository {
           ? null
           : SpotPhoto(
               url: photoUrl,
-              credit: row['photo_credit'] as String,
-              license: row['photo_license'] as String,
-              sourceUrl: row['photo_source_url'] as String,
+              credit: row['photo_credit'] as String?,
+              license: row['photo_license'] as String?,
+              sourceUrl: row['photo_source_url'] as String?,
             ),
     );
   }

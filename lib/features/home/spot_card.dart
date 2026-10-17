@@ -4,7 +4,7 @@ import 'package:divefriend/core/widgets/level_badge.dart';
 import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
 
-/// Kartu spot di Beranda: foto (lencana level di pojok), nama, dan wilayah.
+/// Kartu spot di Beranda: foto (lencana level di pojok), nama, wilayah, dan kalimat pembuka.
 class SpotCard extends StatelessWidget {
   const SpotCard({super.key, required this.spot, required this.onTap});
 
@@ -50,6 +50,13 @@ class SpotCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(spot.region),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    spot.tagline,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(height: 1.35),
                   ),
                 ],
               ),

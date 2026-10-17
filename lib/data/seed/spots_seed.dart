@@ -2,16 +2,16 @@ import 'package:divefriend/data/models/spot.dart';
 
 /// Naikkan angka ini setiap kali isi [spotsSeed] diubah, supaya database
 /// di HP memuat ulang data terbaru saat aplikasi dibuka.
-const int spotsSeedVersion = 2;
+const int spotsSeedVersion = 9;
 
 const String _levelNote =
     'Estimasi sementara tim, belum ada sumber penilaian level. Perlu ditinjau.';
 const String _timeZoneNote =
     'Zona waktu: ditentukan dari provinsi (aturan zona waktu Indonesia).';
 
-/// Data spot hasil kurasi manual. Aturan: setiap nilai harus punya sumber;
+/// Data spot hasil kurasi manual. Aturan: setiap nilai harus punya sumber,
 /// yang tidak ditemukan dibiarkan kosong (tampil "tidak tersedia").
-/// Teks ringkasan dan sejarah adalah parafrase bahasa Indonesia dari sumber yang tercantum.
+/// Teks deskripsi adalah parafrase bahasa Indonesia dari sumber yang tercantum.
 const List<Spot> spotsSeed = [
   Spot(
     id: 'bunaken',
@@ -20,84 +20,109 @@ const List<Spot> spotsSeed = [
     level: SpotLevel.pemula,
     levelBasis: _levelNote,
     types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Dinding karang yang jatuh lurus ke laut dalam di jantung Segitiga Terumbu Karang.',
     summary:
-        'Taman laut di utara Pulau Sulawesi, dekat Manado, yang berada di pusat '
-        'Segitiga Terumbu Karang. Luasnya sekitar 890,65 km2 dan 97 persennya laut; '
-        'daratannya hanya lima pulau: Bunaken, Manado Tua, Mantehage, Nain, dan Siladen. '
-        'Ciri khasnya adalah dinding karang vertikal setinggi 25-50 meter yang dihuni '
-        '13 genus karang. Kawasan ini tidak punya paparan benua, sehingga pantainya '
-        'langsung turun ke lereng benua; kedalaman laut di antara pulau-pulaunya '
-        '200-1.840 meter. Sekitar 390 spesies karang tercatat di sini, dan sekitar 2.000 '
-        'spesies ikan hidup di perairannya. Menyelam dan snorkeling adalah kegiatan '
-        'wisata utama. Suhu air 27-29 derajat Celsius.',
-    history:
-        'Bunaken ditetapkan sebagai taman nasional pada 1991 dan termasuk taman laut '
-        'pertama di Indonesia. Pada 2005 Indonesia mengajukannya ke UNESCO untuk masuk '
-        'Daftar Warisan Dunia. Di dalam kawasan ada sekitar 22 desa dengan kira-kira '
-        '35.000 penduduk, kebanyakan nelayan atau petani kelapa dan rumput laut; hanya '
-        'sebagian kecil bekerja di pariwisata. Pada 2003-2006 jumlah pengunjung berkisar '
-        '32.000-39.000 orang per tahun. Kualitas kawasan menurun perlahan karena '
-        'penambangan karang, kerusakan akibat jangkar, penangkapan ikan dengan bom dan '
-        'sianida, serta sampah. WWF membantu patroli dan penegakan aturan yang '
-        'menurunkan penangkapan ikan dengan bom secara signifikan. Pada 2009 ikan '
-        'purba selakanta Indonesia pertama kali difilmkan langsung di alam dekat Manado '
-        'Tua, dan pada 2024 inisiatif No-Trash Triangle memasang penghalang sungai di '
-        'Manado untuk mengurangi sampah plastik yang masuk ke taman.',
+        'Taman Nasional Bunaken ada di utara Sulawesi, dekat Manado, dan menjadi salah '
+        'satu taman laut paling terkenal di Indonesia. Lautnya mencakup 97 persen dari '
+        'total luas sekitar 890 km2, sisanya lima pulau yaitu Bunaken, Manado Tua, '
+        'Mantehage, Nain, dan Siladen.\n\n'
+        'Daya tarik utamanya ada di bawah air. Kawasan ini tidak punya paparan benua, '
+        'jadi pantainya langsung turun ke lereng benua dan membentuk dinding karang '
+        'vertikal setinggi 25 sampai 50 meter. Di dinding itu hidup 13 genus karang. '
+        'Secara keseluruhan tercatat sekitar 390 spesies karang dan kira-kira 2.000 '
+        'spesies ikan, dengan suhu air yang nyaman di kisaran 27 sampai 29 derajat '
+        'Celsius.\n\n'
+        'Penyelam bisa berjumpa kima raksasa, ikan malaikat kaisar, kuda laut, sampai '
+        'nautilus. Pada 2009, ikan purba selakanta Indonesia bahkan pertama kali '
+        'terekam langsung di alam dekat Manado Tua. Buat yang tidak menyelam, '
+        'snorkeling juga jadi kegiatan utama di sini.',
+    latitude: 1.667,
+    longitude: 124.650,
+    depthText: 'Umumnya 5-40 m (dinding karang setinggi 25-50 m)',
+    bestSeason: 'Sepanjang tahun, terbaik April-Oktober (kemarau)',
     biota: [
       'Kima raksasa (7 dari 8 spesies dunia)',
       'Ikan malaikat kaisar',
       'Kuda laut tutul',
+      'Kuda laut pigmi',
       'Nautilus berongga',
-      'Selakanta Indonesia (difilmkan 2009)',
+      'Selakanta Indonesia',
       'Penyu',
+      'Barakuda',
+      'Kuwe',
+      'Napoleon wrasse',
+      'Bumphead parrotfish',
+      'Frogfish',
     ],
-    latitude: 1.667,
-    longitude: 124.650,
+    photo: SpotPhoto(
+      url: 'https://img.cnt.traveloka.com/tvlk/blog/2020/01/keindahan-alam-indonesia-5-Super-Adventure.jpg?tr=q-70,c-at_max,w-500,h-250,dpr-2',
+      sourceUrl: 'https://www.traveloka.com/id-id/explore/destination/taman-nasional-bunaken-surga-bawah-laut-di-sulawesi-utara-acc/180596',
+    ),
     timeZoneLabel: 'WITA',
     sources: [
-      'Wikipedia: Bunaken National Park (luas, tahun, dinding karang, sejarah) - https://en.wikipedia.org/wiki/Bunaken_National_Park',
+      'Wikipedia: Bunaken National Park (luas, dinding karang, keanekaragaman) - https://en.wikipedia.org/wiki/Bunaken_National_Park',
       'Wikipedia: Bunaken (suhu air, kima raksasa) - https://en.wikipedia.org/wiki/Bunaken',
       'UNESCO Tentative List (dasar laut curam) - https://whc.unesco.org/en/tentativelists/2002',
       'Two Fish Divers (menyelam dan snorkeling) - https://oldsite.twofishdivers.com/?p=21104',
       'National-Parks.org (penyu) - https://national-parks.org/indonesia/bunaken-national-park/',
       _timeZoneNote,
+      'Underwater Asia: Bunaken (musim, biota) - https://underwaterasia.info/indonesia/bunaken-national-park-dive-guide',
+      'Zublu Diving (musim terbaik) - https://zubludiving.com/destination/indonesia/sulawesi/bunaken-manado',
+      'Bluewater Dive Travel (kedalaman, visibilitas) - https://www.bluewaterdivetravel.com/eco-divers-manado',
+      'Champion Traveler (musim hujan) - https://championtraveler.com/dates/best-time-to-visit-bunaken-id/',
     ],
   ),
   Spot(
     id: 'wakatobi',
     name: 'Wakatobi',
     region: 'Sulawesi Tenggara',
-    level: SpotLevel.menengah,
-    levelBasis: _levelNote,
+    level: SpotLevel.pemula,
+    levelBasis: 'Arus umumnya ringan dan banyak titik selam cocok untuk semua level (PADI).',
     types: [SpotType.scuba],
+    tagline: 'Sekitar 150 pulau dengan terumbu karang yang jadi prioritas utama konservasi laut Indonesia.',
     summary:
-        'Gugusan sekitar 150 pulau di Sulawesi Tenggara. Nama Wakatobi adalah singkatan '
-        'dari empat pulau utamanya: Wangi-wangi, Kaledupa, Tomia, dan Binongko. Wilayahnya '
-        'berada di zona keanekaragaman hayati laut Wallacea dan menjadi bagian dari '
-        'Segitiga Terumbu Karang. Daratan kabupatennya seluas 473,62 km2, sedangkan '
-        'perairannya sekitar 17.554 km2. Taman Nasional Wakatobi seluas sekitar 1,39 juta '
-        'hektare dengan kedalaman perairan yang bervariasi hingga titik terdalam sekitar '
-        '1.044 meter. Skala dan kondisi terumbu karangnya termasuk prioritas tertinggi '
-        'konservasi laut di Indonesia. Lanskap bawah lautnya mencakup atol, dinding, '
-        'gunung laut, dan karang penghalang.',
-    history:
-        'Sebelum kemerdekaan, kepulauan ini berada di bawah Kesultanan Buton dan dikenal '
-        'sebagai Kepulauan Tukang Besi. Setelah kemerdekaan, gugusan pulaunya menjadi '
-        'beberapa kecamatan di Kabupaten Buton. Kabupaten Wakatobi dibentuk pada 18 '
-        'Desember 2003 lewat UU Nomor 29 Tahun 2003, bersama Kabupaten Bombana dan Kolaka '
-        'Utara. Kawasan lautnya resmi menjadi taman nasional pada 1996, dan pada 11 Juli '
-        '2012 UNESCO memasukkan Wakatobi ke Jaringan Cagar Biosfer Dunia. Di daratan '
-        'masih ada peninggalan sejarah seperti Benteng Liya dengan empat lapis dinding, '
-        'Benteng Mandati Tonga, dan mercusuar peninggalan Belanda yang dibangun pada '
-        '1901. Suku Bajau, pengembara laut yang hidup dari sumber daya laut, juga '
-        'tinggal di kawasan ini.',
+        'Nama Wakatobi berasal dari empat pulau utamanya, yaitu Wangi-wangi, Kaledupa, '
+        'Tomia, dan Binongko. Gugusan sekitar 150 pulau ini ada di Sulawesi Tenggara '
+        'dan menjadi bagian dari Segitiga Terumbu Karang. Daratan kabupatennya hanya '
+        '473,62 km2, sementara perairannya membentang sekitar 17.554 km2.\n\n'
+        'Taman Nasional Wakatobi seluas sekitar 1,39 juta hektare dan termasuk '
+        'prioritas tertinggi konservasi laut di Indonesia. Bentang bawah lautnya '
+        'beragam, mulai dari atol, dinding, gunung laut, sampai karang penghalang. '
+        'Titik terdalam perairannya sekitar 1.044 meter.\n\n'
+        'UNESCO memasukkan Wakatobi ke Jaringan Cagar Biosfer Dunia pada Juli 2012. '
+        'Di daratan ada Benteng Liya yang berdinding empat lapis, dan suku Bajau, '
+        'pengembara laut yang hidupnya bergantung pada laut, juga tinggal di sini.',
     latitude: -5.53583,
     longitude: 123.75806,
+    depthText: 'Titik populer sekitar 0-60 m (Roma 5-25 m)',
+    bestSeason:
+        'Sepanjang tahun (kemarau Mei-Oktober, paling basah Januari-Februari)',
+    biota: [
+      'Penyu',
+      'Pari',
+      'Hiu',
+      'Mandarinfish (saat senja)',
+      'Kipas gorgonia raksasa (lebih dari 2 m)',
+      'Karang hitam',
+      'Cuttlefish',
+      'Nudibranch',
+      'Ikan unicorn',
+      'Clownfish dan anemon',
+    ],
+    photo: SpotPhoto(
+      url: 'https://backpackerjakarta.com/wp-content/uploads/2017/07/Wakatobi-Dive-Resort_photo-by-Didi-Lotze.jpg',
+      sourceUrl: 'https://backpackerjakarta.com/taman-nasional-wakatobi-salah-satu-surga-bawah-laut-indonesia-yang-mendunia/',
+    ),
     timeZoneLabel: 'WITA',
     sources: [
-      'Wikipedia: Wakatobi Regency (koordinat, luas, sejarah, cagar biosfer) - https://en.wikipedia.org/wiki/Wakatobi_Regency',
+      'Wikipedia: Wakatobi Regency (koordinat, luas, cagar biosfer, Benteng Liya) - https://en.wikipedia.org/wiki/Wakatobi_Regency',
       'Underwater Asia (jenis lanskap selam) - https://dev.underwaterasia.info/countries/indonesia',
       _timeZoneNote,
+      'Scuba Diver Life (kedalaman titik selam) - https://scubadiverlife.com/all-the-best-of-wakatobi/',
+      'PADI: Guide to Diving in Wakatobi (arus, level, biota) - https://blog.padi.com/guide-to-diving-in-wakatobi/',
+      'Original Diving (musim) - https://www.originaldiving.com/far-east/indonesia/dive-wakatobi/best-time',
+      'Dive The World (hujan dan visibilitas) - https://dive-the-world.com/diving-sites-indonesia-wakatobi.php',
+      'Deeper Blue (biota dan titik selam) - https://www.deeperblue.com/top-5-favorite-dives-at-wakatobi/',
     ],
   ),
   Spot(
@@ -105,50 +130,51 @@ const List<Spot> spotsSeed = [
     name: 'Raja Ampat',
     region: 'Papua Barat Daya',
     level: SpotLevel.lanjutan,
-    levelBasis: _levelNote,
+    levelBasis: 'Ada titik dangkal untuk pemula yang percaya diri, tetapi arus kuat sehingga kualifikasi selam lanjutan disarankan (DIVESSI).',
     types: [SpotType.scuba],
+    tagline: 'Kepulauan terpencil di ujung barat laut Papua yang dijuluki pusat keanekaragaman laut tropis dunia.',
     summary:
-        'Raja Ampat atau "Empat Raja" adalah kepulauan di ujung barat laut Semenanjung '
-        'Kepala Burung, Pulau Papua, yang sejak 2024 masuk Provinsi Papua Barat Daya. '
-        'Terdiri atas lebih dari 1.500 pulau kecil, karang, dan gosong di sekitar empat '
-        'pulau utama (Misool, Salawati, Batanta, Waigeo) dan Pulau Kofiau. Kepulauan ini '
-        'bagian dari Segitiga Terumbu Karang dan dianggap pusat keanekaragaman hayati '
-        'laut tropis dunia: lebih dari 600 spesies karang keras (sekitar 75 persen spesies '
-        'dunia) dan lebih dari 1.700 spesies ikan karang. Dugong, paus, lumba-lumba, dan '
-        'hiu paus juga ditemukan. Suhu air di Raja Ampat utara 28-30 derajat Celsius, '
-        'di selatan (Misool) 26-28 derajat Celsius. Lokasinya terpencil dan relatif '
-        'tidak terganggu manusia.',
-    history:
-        'Bukti arkeologi menunjukkan manusia pertama kali mengunjungi Raja Ampat lebih '
-        'dari 50.000 tahun lalu, dan komunitas pembuat gerabah datang sekitar '
-        '3.500-3.000 tahun lalu. Nama "Raja Ampat" berasal dari mitos setempat tentang '
-        'seorang perempuan yang menemukan tujuh telur; beberapa telur menetas menjadi '
-        'raja yang menempati kepulauan ini. Kerajaan yang disebut dalam tradisi antara '
-        'lain Waigeo, Salawati, Sailolof, Misool, dan Waigama, dan siapa yang dihitung '
-        'sebagai "empat" berbeda menurut sumbernya. Orang Eropa pertama yang tercatat '
-        'mendarat adalah navigator Portugis Jorge de Menezes pada 1526. Islam masuk '
-        'pada abad ke-15 lewat hubungan dengan Kesultanan Bacan, dan pada abad ke-16 '
-        'dan 17 kepulauan ini terkait erat dengan Kesultanan Tidore sebelum diklaim '
-        'Belanda. Kabupaten Raja Ampat dibentuk pada 2004 (pemekaran dari Kabupaten '
-        'Sorong), Taman Wisata Perairan Raja Ampat ditetapkan pada 2009, dan pada 2025 '
-        'UNESCO menetapkannya sebagai cagar biosfer. Ancaman yang tercatat antara lain '
-        'bintang laut mahkota duri dan kapal pesiar yang kandas pada Maret 2017 dan '
-        'merusak sekitar 1.600 m2 terumbu menurut tim evaluasi. Program pelepasan hiu '
-        'zebra dimulai pada 2022 dengan target 500 hiu hingga 2032.',
+        'Raja Ampat berarti Empat Raja. Kepulauan ini ada di ujung barat laut '
+        'Semenanjung Kepala Burung, Pulau Papua, dan sejak 2024 masuk Provinsi Papua '
+        'Barat Daya. Isinya lebih dari 1.500 pulau kecil, karang, dan gosong di sekitar '
+        'empat pulau utama yaitu Misool, Salawati, Batanta, dan Waigeo, ditambah Pulau '
+        'Kofiau.\n\n'
+        'Di bawah air, Raja Ampat termasuk yang terkaya di dunia. Tercatat lebih dari '
+        '600 spesies karang keras, sekitar 75 persen dari seluruh spesies karang dunia, '
+        'dan lebih dari 1.700 spesies ikan karang. Dugong, paus, lumba-lumba, dan hiu '
+        'paus juga hidup di perairannya. Suhu air di bagian utara 28 sampai 30 derajat '
+        'Celsius, sedangkan di selatan (Misool) 26 sampai 28 derajat Celsius.\n\n'
+        'Lokasinya terpencil dan relatif jauh dari keramaian, jadi banyak penyelam '
+        'datang lewat kapal liveaboard. Sejak 2025, kepulauan ini juga berstatus cagar '
+        'biosfer UNESCO.',
+    latitude: -0.2333115,
+    longitude: 130.5078908,
+    depthText: 'Titik populer sekitar 5-30 m',
+    bestSeason:
+        'Oktober-April (kemarau, laut tenang), selam bagus sepanjang tahun',
     biota: [
       'Karang keras (lebih dari 600 spesies)',
       'Ikan karang (lebih dari 1.700 spesies)',
+      'Pari manta',
       'Hiu paus',
       'Dugong',
       'Penyu belimbing, lekang, dan sisik',
     ],
-    latitude: -0.2333115,
-    longitude: 130.5078908,
+    photo: SpotPhoto(
+      url: 'https://upload.wikimedia.org/wikipedia/commons/8/88/Raja_Ampat%2C_Mutiara_Indah_di_Timur_Indonesia.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original',
+      credit: 'I Made Adi Dharmawam',
+      license: 'CC BY-SA 4.0',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:Raja_Ampat,_Mutiara_Indah_di_Timur_Indonesia.jpg',
+    ),
     timeZoneLabel: 'WIT',
     sources: [
-      'Wikipedia: Raja Ampat Islands (koordinat, keanekaragaman, sejarah) - https://www.wikipedia.org/wiki/Raja_Ampat',
+      'Wikipedia: Raja Ampat Islands (koordinat, keanekaragaman, status) - https://www.wikipedia.org/wiki/Raja_Ampat',
       'Underwater Asia (liveaboard, kualitas selam) - https://dev.underwaterasia.info/countries/indonesia',
       _timeZoneNote,
+      'DUNE (musim, angin, Misool) - https://dune-world.com/en/articles/best-time-to-dive-indonesia-season-guide',
+      'Eskimo Travel (musim terbaik) - https://www.eskimo.travel/en/blog/best-diving-spots-in-indonesia',
+      'Yacht Charter Indonesia (kedalaman titik selam) - https://yachtcharterindonesia.com/diving-in-raja-ampat/',
+      'DIVESSI (titik dangkal, arus kuat) - https://www.divessi.com/en/blog/best-diving-in-asia-8626.html',
     ],
   ),
   Spot(
@@ -156,24 +182,59 @@ const List<Spot> spotsSeed = [
     name: 'Taman Nasional Komodo',
     region: 'Nusa Tenggara Timur',
     level: SpotLevel.lanjutan,
-    levelBasis:
-        'Perairannya disebut disapu arus dan kaya satwa pelagis (Underwater Asia). '
-        'Estimasi tim, perlu ditinjau.',
+    levelBasis: 'Banyak titik terkenal (Batu Bolong, Castle Rock) berarus kuat dan disarankan untuk penyelam lanjut, sementara Manta Point cocok untuk pemula (DiveSSI, Eskimo Travel).',
     types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Rumah biawak komodo dengan perairan berarus yang kaya pari manta, hiu, dan penyu.',
     summary:
-        'Taman nasional di antara Pulau Sumbawa dan Flores, ditetapkan UNESCO sebagai '
-        'Warisan Dunia pada 1991 dengan luas 219.322 hektare. Selain menjadi habitat '
-        'biawak komodo, perairannya memiliki terumbu karang yang kaya dan disebut '
-        'disapu arus dengan banyak satwa pelagis. Penjelasan dan sejarah yang lebih '
-        'lengkap menyusul pada pembaruan data berikutnya.',
-    latitude: -8.543,
-    longitude: 119.489,
+        'Taman Nasional Komodo berada di antara Pulau Sumbawa dan Flores, di '
+        'perbatasan Nusa Tenggara Timur dan Nusa Tenggara Barat. Taman ini berdiri pada '
+        '1980 untuk melindungi komodo, kadal terbesar di dunia, lalu diperluas pada '
+        '1984 menjadi 219.322 hektare dengan area laut yang lebih luas dan sebagian '
+        'daratan Flores. Sekitar 60 persen kawasannya adalah laut, dan taman ini juga '
+        'berstatus Warisan Dunia UNESCO.\n\n'
+        'Pulau-pulaunya berasal dari gunung api dan perairannya termasuk Segitiga '
+        'Terumbu Karang. Habitat lautnya beragam, mulai dari terumbu karang, mangrove, '
+        'padang lamun, gunung laut, sampai teluk semi tertutup. Tercatat lebih dari '
+        '1.000 spesies ikan, sekitar 260 spesies karang pembentuk terumbu, dan 70 '
+        'spesies spons. Pari manta, hiu, dugong, lumba-lumba, dan penyu juga menjadi '
+        'penghuninya.\n\n'
+        'Perairannya disebut disapu arus dan kaya satwa pelagis, jadi cocok untuk '
+        'penyelam yang sudah nyaman dengan arus. Menyelam bisa dilakukan sepanjang '
+        'tahun.',
+    latitude: -8.54333,
+    longitude: 119.48944,
+    depthText:
+        'Titik populer sekitar 4-35 m (Batu Bolong sampai lebih dari 70 m)',
+    bestSeason: 'April-November (kemarau), bisa sepanjang tahun',
+    biota: [
+      'Pari manta',
+      'Hiu karang abu-abu dan sirip putih',
+      'Barakuda',
+      'Kuwe raksasa',
+      'Penyu',
+      'Pari elang',
+      'Kima raksasa',
+      'Lumba-lumba',
+      'Dugong',
+    ],
+    photo: SpotPhoto(
+      url: 'https://suarapemerintah.id/wp-content/uploads/2022/02/pulau-padar-1068x712.webp',
+      sourceUrl: 'https://suarapemerintah.id/2022/02/ke-taman-nasional-komodo-wajib-abadikan-6-spot-instagenic-ini/',
+    ),
     timeZoneLabel: 'WITA',
     sources: [
-      'UNESCO World Heritage: Komodo National Park (koordinat, luas, tahun) - https://whc.unesco.org/document/217032',
+      'Wikipedia: Komodo National Park (koordinat, 1980, zona laut) - https://en.wikipedia.org/wiki/Komodo_National_Park',
+      'UNESCO World Heritage: Komodo (perluasan 1984, 219.322 ha) - https://whc.unesco.org/document/153875',
+      'Dive The World (keanekaragaman, menyelam sepanjang tahun) - https://www.dive-the-world.com/reefs-and-parks-indonesia-komodo-national-park.php',
+      'Aqua Expeditions (habitat laut) - https://www.aquaexpeditions.com/indonesia-cruise/komodo-islands/',
       'Underwater Asia (arus, satwa pelagis) - https://dev.underwaterasia.info/countries/indonesia',
       'Luxury Hunt (menyelam dan snorkeling) - https://www.luxuryhunt.com/sleep/indonesia/alila-purnama/',
       _timeZoneNote,
+      'Dive Tribe Komodo (kedalaman titik selam) - https://divetribekomodo.com/faq/about-komodo-dive-sites/top-10-dive-sites-komodo-national-park',
+      'DiveSSI: Komodo (level, arus) - https://www.divessi.com/en/mydiveguide/divesite/77789',
+      'Komodo Resort (musim terbaik) - https://www.komodoresort.com/de/indonesia-diving',
+      'Eskimo Travel (drift dive, musim) - https://www.eskimo.travel/en/blog/best-diving-spots-in-indonesia',
+      'La Galigo Liveaboard (musim, manta) - https://www.lagaligoliveaboard.com/best-komodo-dive-sites-to-visit/',
     ],
   ),
   Spot(
@@ -181,38 +242,47 @@ const List<Spot> spotsSeed = [
     name: 'Kepulauan Karimunjawa',
     region: 'Jawa Tengah',
     level: SpotLevel.pemula,
-    levelBasis: _levelNote,
+    levelBasis: 'Kegiatan utamanya snorkeling di sekitar pulau (Jakarta Post). Estimasi tim, perlu ditinjau.',
     types: [SpotType.snorkeling],
+    tagline:
+        '27 pulau di Laut Jawa, cocok untuk snorkeling dan berjumpa penyu.',
     summary:
-        'Kepulauan berisi 27 pulau di Laut Jawa, sekitar 80 km barat laut Jepara, Jawa '
-        'Tengah, dengan luas daratan total 45,62 km2. Pulau utamanya Karimun (2.700 '
-        'hektare) dan yang terbesar kedua Kemujan (1.400 hektare). Penduduknya 9.789 '
-        'jiwa (Sensus 2020) di lima pulau; budaya Jawa dominan, dan ini satu-satunya '
-        'gugusan pulau lepas pantai Jawa yang berbahasa pengantar Jawa. Dua puluh dua '
-        'pulau menjadi kawasan konservasi laut Taman Nasional Karimunjawa. Pulau-pulaunya '
-        'dikelilingi terumbu karang tepi dan terumbu karang yang tersebar, ditambah '
-        'padang lamun; penyu sisik dan penyu hijau ditemukan di sini. Wisatawan dapat '
-        'menyewa perahu untuk mengelilingi pulau dan snorkeling.',
-    history:
-        'Menurut legenda, nama Karimunjawa berasal dari ungkapan Jawa "kremun-kremun '
-        'soko Jowo" yang berarti "tampak samar dari Jawa". Sejarah permukimannya dikaitkan '
-        'dengan penyebaran Islam di Jawa: Amir Hasan (Sunan Nyamplungan), putra Sunan '
-        'Muria, disebut sebagai penemu yang menetap, dan makamnya di bukit Pulau '
-        'Karimunjawa dianggap titik keramat (sumber wisata, berupa tradisi tutur). '
-        'Wikipedia mencatat gugusan ini dinyatakan sebagai taman nasional pada 1988, '
-        'dan 22 pulaunya ditetapkan sebagai cagar laut pada 2001; kedua tahun tertulis '
-        'di sumber yang sama, jadi sebaiknya dicek ke sumber resmi sebelum dikutip '
-        'di laporan.',
-    biota: ['Penyu sisik', 'Penyu hijau', 'Padang lamun'],
+        'Karimunjawa adalah gugusan 27 pulau di Laut Jawa, sekitar 80 km di barat laut '
+        'Jepara, Jawa Tengah. Total daratannya 45,62 km2. Pulau utamanya Karimun '
+        'seluas 2.700 hektare, dan yang terbesar kedua adalah Kemujan dengan 1.400 '
+        'hektare. Sekitar 9.800 orang tinggal di lima pulau (9.789 jiwa pada Sensus '
+        '2020).\n\n'
+        'Dua puluh dua pulau di sini dilindungi sebagai kawasan konservasi laut Taman '
+        'Nasional Karimunjawa. Pulau-pulaunya dikelilingi terumbu karang tepi dan '
+        'terumbu yang tersebar, ditambah padang lamun. Penyu sisik dan penyu hijau bisa '
+        'ditemukan di perairannya.\n\n'
+        'Budaya Jawa mendominasi kehidupan pulau, dan ini satu-satunya gugusan pulau '
+        'lepas pantai Jawa yang berbahasa pengantar Jawa. Wisatawan biasanya menyewa '
+        'perahu untuk keliling pulau dan snorkeling.',
     latitude: -5.81917,
     longitude: 110.459,
+    depthText: 'Perairan snorkeling di sekitar hampir semua pulau',
+    bestSeason: 'April-Oktober (kemarau)',
+    biota: [
+      'Penyu sisik',
+      'Penyu hijau',
+      'Hiu (sering terlihat)',
+      'Padang lamun',
+    ],
+    photo: SpotPhoto(
+      url: 'https://statik.tempo.co/data/2019/07/30/id_859623/859623_720.jpg',
+      sourceUrl: 'https://www.tempo.co/hiburan/4-keunikan-kepulauan-karimunjawa-nan-eksotis-302277',
+    ),
     timeZoneLabel: 'WIB',
     sources: [
-      'Wikipedia: Karimunjawa (koordinat, luas, penduduk, sejarah penetapan) - https://en.wikipedia.org/wiki/Karimunjawa',
+      'Wikipedia: Karimunjawa (koordinat, luas, penduduk) - https://en.wikipedia.org/wiki/Karimunjawa',
       'Wikipedia: Karimunjawa National Park (penyu, lamun) - https://en.wikipedia.org/wiki/Karimunjawa_National_Park',
-      'Kupi.com (asal nama, tradisi tutur) - https://www.kupi.com/en/explore/indonesia/karimunjawa/history',
       'Kemenparekraf (snorkeling, perahu) - https://bob.kemenparekraf.go.id/en/1927-pulau-karimunjawa',
       'DBpedia (zona waktu UTC+7) - https://dbpedia.org/page/Karimunjawa',
+      'Jakarta Post: Charm of the Karimun Jawa Islands (musim, snorkeling) - https://www.thejakartapost.com/news/2012/12/09/charm-karimun-jawa-islands',
+      'Traveloka (musim kemarau dan hujan) - https://www.traveloka.com/en-id/destination/area/karimunjawa-106983',
+      'Indonesia Expat (titik snorkeling, hiu) - https://indonesiaexpat.biz/travel/8-reasons-to-visit-karimunjawa',
+      'Zona waktu: UTC+7 (WIB), tertulis di Wikipedia Karimunjawa.',
     ],
   ),
   Spot(
@@ -220,27 +290,552 @@ const List<Spot> spotsSeed = [
     name: 'Kepulauan Derawan',
     region: 'Kalimantan Timur',
     level: SpotLevel.menengah,
-    levelBasis: _levelNote,
+    levelBasis: 'Titik dekat Pulau Derawan mudah dan berarus ringan (Liveaboard.com), tetapi Kakaban dan Maratua punya tebing curam dan arus kuat (Zublu).',
     types: [SpotType.scuba],
+    tagline: '31 pulau tempat penyu hijau bertelur dan ubur-ubur tak menyengat berenang bebas.',
     summary:
-        'Kepulauan di Provinsi Kalimantan Timur yang terdiri atas 31 pulau; yang paling '
-        'dikenal adalah Derawan, Kakaban, Maratua, dan Sangalaki. Kawasan ini berada di '
-        'hotspot keanekaragaman hayati dengan 872 spesies ikan karang serta 507 spesies '
-        'karang dan invertebrata, termasuk satwa dilindungi seperti 5 spesies kima '
-        'raksasa, 2 spesies penyu, dan kepiting kelapa. Hanya dua pulau yang '
-        'berpenghuni: Derawan (1.259 jiwa) dan Maratua (2.704 jiwa). Ada tiga resor '
-        'selam di kepulauan ini. Koordinat dan sejarah menyusul pada pembaruan data berikutnya.',
+        'Kepulauan Derawan terdiri dari 31 pulau di Laut Sulawesi, Kabupaten Berau, '
+        'Kalimantan Timur. Yang paling dikenal adalah Derawan, Kakaban, Maratua, dan '
+        'Sangalaki. Kawasan ini bagian dari Segitiga Terumbu Karang dengan 872 spesies '
+        'ikan karang serta 507 spesies karang dan invertebrata. Satwa dilindungi seperti '
+        'lima spesies kima raksasa, dua spesies penyu, dan kepiting kelapa juga hidup '
+        'di sini.\n\n'
+        'Derawan punya lokasi bertelur penyu hijau terbesar di Indonesia. Di Pulau '
+        'Kakaban ada danau berisi jutaan ubur-ubur tak menyengat, dan ada danau serupa '
+        'di Maratua. Pulau Maratua seluas 35,5 km2 juga menyimpan setidaknya 13 gua '
+        'yang tersambung ke laut.\n\n'
+        'Hanya dua pulau yang berpenghuni, yaitu Derawan dan Maratua. Ada tiga resor '
+        'selam di kepulauan ini, dan Bandara Maratua dengan landasan 1.200 meter '
+        'beroperasi sejak September 2015.',
+    latitude: 2.283,
+    longitude: 118.217,
+    depthText: 'Sangalaki dan Kakaban sekitar 15-25 m, Maratua 15-30 m lebih',
+    bestSeason:
+        'Sepanjang tahun, terbaik sekitar Maret-Oktober (Januari bisa badai)',
     biota: [
-      'Ikan karang (872 spesies)',
-      'Karang dan invertebrata (507 spesies)',
-      'Kima raksasa (5 spesies)',
-      'Penyu (2 spesies)',
+      'Pari manta (Sangalaki)',
+      'Penyu hijau dan sisik',
+      'Dugong',
+      'Ubur-ubur tak menyengat (Kakaban)',
+      'Bumphead parrotfish',
+      'Napoleon wrasse',
+      'Kuda laut pigmi',
+      'Mandarin fish',
+      'Cumi flamboyan',
+      'Hiu karang (kadang hiu martil)',
       'Kepiting kelapa',
     ],
+    photo: SpotPhoto(
+      url: 'https://www.iwarebatik.org/wp-content/uploads/2019/11/pulau-derawan-1.jpg',
+      sourceUrl: 'https://www.iwarebatik.org/derawan-island-marine-conservation-site-tourism/?lang=id',
+    ),
     timeZoneLabel: 'WITA',
     sources: [
-      'Wikipedia: Derawan Islands (jumlah pulau, keanekaragaman, penduduk) - https://en.wikipedia.org/wiki/Derawan_Islands',
+      'Wikipedia: Derawan Islands (semua data kepulauan) - https://en.wikipedia.org/wiki/Derawan_Islands',
       _timeZoneNote,
+      'Zublu Diving: Derawan (musim, kedalaman) - https://zubludiving.com/destination/indonesia/kalimantan/derawan-sangalaki-maratua',
+      'GoAsia (bulan terbaik, 28 titik selam) - https://goasia.cc/en/article/derawan-islands-kalimantan',
+      'TripBase (biota) - https://www.tripbase.com/destinations/derawan-islands-indonesia/diving/',
+      'Bluewater Dive Travel (suhu air) - https://www.bluewaterdivetravel.com/destination/derawan-islands-diving',
+      'Liveaboard.com: Derawan (arus) - https://www.liveaboard.com/diving/indonesia/derawan?cid=7792',
+    ],
+  ),
+  Spot(
+    id: 'weh',
+    name: 'Pulau Weh',
+    region: 'Aceh',
+    level: SpotLevel.menengah,
+    levelBasis:
+        'Ulasan penyelam menyebut dinding curam dan arus kuat, sementara Wikivoyage '
+        'menyebut ada pilihan untuk semua level. Estimasi tim, perlu ditinjau.',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Pulau gunung api di ujung barat Indonesia dengan dinding karang dan arus yang menantang.',
+    summary:
+        'Pulau Weh adalah pulau vulkanik kecil di barat laut Sumatra yang juga dikenal '
+        'sebagai Sabang, nama kota di ujung timur lautnya. Luas wilayahnya 122,13 km2 '
+        'termasuk beberapa pulau kecil di sekelilingnya. Titik paling barat Indonesia '
+        'ada di pulau ini, dan jaraknya hanya sekitar 15 km dari Banda Aceh.\n\n'
+        'Topografi vulkaniknya berlanjut sampai ke bawah air. Penyelam menemukan '
+        'dinding batu curam yang disapu arus kuat dan dihuni ikan-ikan besar, yang '
+        'menurut ulasan penyelam menantang namun memuaskan. Pulau Rubiah, salah satu '
+        'dari empat pulau kecil di sekitar Weh, terkenal untuk wisata selam dan '
+        'snorkeling berkat terumbu karangnya, dan Desa Iboih dikenal sebagai basis '
+        'menyelam.\n\n'
+        'Pemerintah menetapkan sekitar 60 km2 darat dan laut di sekeliling pulau sebagai '
+        'kawasan perlindungan satwa liar. Dari Banda Aceh, kapal cepat menyeberang '
+        'sekitar satu jam dari Pelabuhan Ulee Lheue ke Balohan.',
+    latitude: 5.82,
+    longitude: 95.28,
+    depthText: 'Kebanyakan titik mulai dangkal lalu menurun, kedalaman maksimum tercatat sekitar 31-40 m',
+    bestSeason: 'April-Oktober (kemarau), paling stabil Mei-September',
+    biota: [
+      'Hiu sirip hitam dan sirip putih',
+      'Hiu karang abu-abu',
+      'Hiu thresher (kadang)',
+      'Kipas gorgonia',
+      'Moray',
+      'Gurita',
+      'Lionfish',
+      'Ikan badut',
+    ],
+    photo: SpotPhoto(
+      url: 'https://okuselatan.disway.id/upload/35a83374bdf1245f05b6bde5085ac7ba.jpg',
+      sourceUrl: 'https://okuselatan.disway.id/traveling/read/640498/pulau-weh-pesona-keindahan-alami-yang-memikat-di-aceh',
+    ),
+    timeZoneLabel: 'WIB',
+    sources: [
+      'Wikipedia: Weh Island (koordinat, luas, Rubiah, Iboih) - https://en.wikipedia.org/wiki/Weh_Island',
+      'Wikivoyage: Sabang (snorkeling dan selam, titik paling barat) - https://en.wikivoyage.org/wiki/Sabang_(Indonesia)',
+      'Sea-Seek (kawasan perlindungan satwa liar 60 km2) - https://www.sea-seek.com/fr/Pulau-Weh-N-Sumatra-',
+      'Bluewater Dive Travel (ulasan: dinding curam, arus kuat) - https://www.bluewaterdivetravel.com/Pulau-Weh/coendozn',
+      _timeZoneNote,
+      'Underwater Asia: Pulau Weh (musim, hiu) - https://underwaterasia.info/indonesia/pulau-weh-diving',
+      'PADI: Sumatra (Batee Tokong, hiu) - https://blog.padi.com/diving-the-best-sites-in-sumatra-indonesia/',
+      'Stingy Nomads (log kedalaman, biota) - https://stingynomads.com/diving-pulau-weh-indonesia/',
+      'Ocean Earth Travels (musim stabil) - https://www.oceanearthtravels.com/hotels-resorts/the-pade-dive-resort',
+      'Scuba Diver Life (musim hujan) - https://scubadiverlife.com/best-scuba-diving-pulau-weh/',
+    ],
+  ),
+  Spot(
+    id: 'togean',
+    name: 'Kepulauan Togean',
+    region: 'Sulawesi Tengah',
+    level: SpotLevel.pemula,
+    levelBasis: 'Titik selam untuk semua kemampuan dan arus ringan karena Teluk Tomini terlindung (Underwater Asia, Reconnect).',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: '56 pulau di Teluk Tomini dengan hamparan terumbu karang terluas di Indonesia.',
+    summary:
+        'Kepulauan Togean (juga ditulis Togian) terdiri dari 56 pulau dan banyak pulau '
+        'kecil di Teluk Tomini, lepas pantai Sulawesi Tengah. Pulau-pulau terbesarnya '
+        'adalah Batudaka, Togean, Talatako, Una-Una, Walea Bahi, Walea Kodi, dan '
+        'Malenge. Letaknya di zona peralihan garis Wallace dan Weber, tepat di jantung '
+        'Segitiga Terumbu Karang.\n\n'
+        'Sebagian kepulauan ini menjadi taman nasional pada 2004. Menurut data ASEAN, '
+        'luas totalnya 365.241 hektare dengan 340.119 hektare di antaranya perairan. '
+        'Taman nasional ini punya hamparan terumbu karang terawetkan terluas di '
+        'Indonesia. Pada Juni 2019, UNESCO juga menetapkannya sebagai Cagar Biosfer '
+        'Tojo Una-Una Togean, yang ke-15 di Indonesia.\n\n'
+        'Lokasi selam yang populer antara lain Pulau Kadidiri dan Una-Una. Di darat '
+        'ada kepiting kelapa yang bisa tumbuh sampai 4 kg dan monyet tonkean. Akses '
+        'dari daratan lewat Ampana atau Gorontalo dengan kapal, dan pada awal 2023 ada '
+        'sekitar 20 resor di kepulauan ini.',
+    latitude: -0.39167,
+    longitude: 121.95778,
+    depthText: 'Tebing curam dan ngarai, ada titik dalam (Dominic Rock) dan titik mudah (Taipi Wall)',
+    bestSeason: 'Sepanjang tahun, terbaik April-November',
+    biota: [
+      'Penyu',
+      'Pari elang',
+      'Napoleon wrasse',
+      'Bumphead parrotfish',
+      'Barakuda',
+      'Kuwe',
+      'Hiu karang',
+      'Moray',
+      'Nudibranch',
+      'Frogfish',
+      'Kuda laut',
+      'Kepiting kelapa',
+      'Monyet tonkean (di darat)',
+    ],
+    photo: SpotPhoto(
+      url: 'https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/rsfit1440960gsm/events/2023/11/07/2cf68360-ebff-4ee0-80b8-fb8bb2f1910e-1699347374366-feb019d967a4921ecc2f19954d3ee541.png',
+      sourceUrl: 'https://www.tiket.com/id-id/to-do/5d4n-togean-trip-by-travel-buddies',
+    ),
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Togian Islands (koordinat, taman nasional, resor) - https://en.wikipedia.org/wiki/Togian_Islands',
+      'Wikipedia: Togean Island (terumbu karang terawetkan) - https://en.wikipedia.org/wiki/Togean_Island',
+      'ASEAN ENMAPS: Kepulauan Togean NP (luas, cagar biosfer) - https://enmaps.aseanbiodiversity.org/kepulauan-togean-national-park-ktnp/',
+      'National-Parks.org (lokasi selam Kadidiri dan Una-Una) - https://national-parks.org/indonesia/kepulaua-togean-national-park/',
+      'Wikivoyage: Togean Islands (kepiting kelapa, kapal dari Ampana) - https://en.wikivoyage.org/wiki/Togean_Islands',
+      _timeZoneNote,
+      'Underwater Asia: Togian Islands (semua level, sepanjang tahun) - https://underwaterasia.info/indonesia/togian-islands-diving',
+      'Reconnect (April-November, arus ringan) - https://reconnect.id/post/best-time-to-dive-in-sulawesi-a-month-by-month-guide-to-visibility-currents-and',
+      'Stingy Nomads: Togian (biota Kadidiri dan Una-Una) - https://stingynomads.com/?p=1862',
+      'Starfish (kedalaman Una-Una) - https://www.starfish.ch/dive/Togian-Banggai.html',
+      'Mermaid Liveaboards (jumlah titik selam) - https://www.mermaid-liveaboards.com/itineraries/lembeh-togian-lembeh/',
+    ],
+  ),
+  Spot(
+    id: 'lembeh',
+    name: 'Selat Lembeh',
+    region: 'Sulawesi Utara',
+    level: SpotLevel.menengah,
+    levelBasis:
+        'Wikipedia menyebut Lembeh favorit penyelam berpengalaman, tetapi kedalaman '
+        'umumnya dangkal (15-25 m). Estimasi tim, perlu ditinjau.',
+    types: [SpotType.scuba],
+    tagline: 'Ibu kota muck diving dunia, dengan biota langka dan unik yang sangat padat.',
+    summary:
+        'Selat Lembeh memisahkan Pulau Lembeh dari daratan Sulawesi, dekat kota Bitung '
+        'di Sulawesi Utara. Panjangnya sekitar 16 km dan lebarnya hanya sekitar 1,2 km, '
+        'tetapi 88 titik selam sudah ditemukan di perairan sempit ini.\n\n'
+        'Lembeh dijuluki ibu kota muck diving dunia dan surga fotografer makro. Muck '
+        'diving adalah menyelam di dasar berpasir untuk mencari makhluk kecil yang '
+        'unik. Di sini penyelam berburu frogfish, gurita langka, kuda laut, dan '
+        'nudibranch, sampai gurita mimic, cumi flamboyan, dan mandarin fish yang sedang '
+        'kawin. Kedalaman sebagian besar titik selam berkisar 15 sampai 25 meter.\n\n'
+        'Karena letaknya terlindung, menyelam bisa dilakukan sepanjang tahun dan jarang '
+        'batal karena cuaca. Desember sampai Februari umumnya musim hujan, dan jarak '
+        'pandang di sini memang tidak tinggi. Dari Manado, naik bus ke Bitung lalu '
+        'menyeberang sekitar 15 menit dengan perahu. Banyak penyelam menggabungkan '
+        'Lembeh dengan Bunaken dalam satu perjalanan.',
+    biota: [
+      'Frogfish',
+      'Gurita mimic',
+      'Cumi flamboyan',
+      'Kuda laut',
+      'Nudibranch',
+      'Mandarin fish',
+    ],
+    latitude: 1.433,
+    longitude: 125.233,
+    depthText: 'Umumnya 15-25 m',
+    bestSeason: 'Sepanjang tahun (Desember-Februari umumnya musim hujan)',
+    photo: SpotPhoto(
+      url: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/2c/a8/e4/aerial-shot-of-resort.jpg?w=1400&h=-1&s=1',
+      sourceUrl: 'https://www.tripadvisor.co.id/Hotel_Review-g680020-d10520101-Reviews-Dive_Into_Lembeh-Bitung_North_Sulawesi_Sulawesi.html',
+    ),
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Lembeh (koordinat, biota, cuaca) - https://en.wikipedia.org/wiki/Lembeh',
+      'WorldAtlas (88 titik selam, kedalaman, biota) - https://www.worldatlas.com/articles/where-is-the-lembeh-strait.html',
+      'Indonesia.travel (ukuran selat, akses dari Manado) - https://www.indonesia.travel/th/en/destinations/sulawesi/bitung/the-lembeh-strait',
+      'Liveaboard.com (muck diving, jarak dari Manado) - https://www.liveaboard.com/diving/indonesia/lembeh-strait?cid=7229',
+      _timeZoneNote,
+    ],
+  ),
+  Spot(
+    id: 'gili',
+    name: 'Kepulauan Gili',
+    region: 'Nusa Tenggara Barat',
+    level: SpotLevel.pemula,
+    levelBasis: 'Dikenal sebagai tempat paling populer di Indonesia untuk belajar menyelam, walau arus bisa kuat di beberapa titik (Underwater Asia).',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Tiga pulau kecil di barat laut Lombok dengan sekolah selam, patung bawah laut, dan suasana santai.',
+    summary:
+        'Gili Trawangan, Gili Meno, dan Gili Air adalah tiga pulau kecil di barat laut '
+        'Lombok. Dalam bahasa Sasak, gili berarti pulau kecil, dan nama lokal ketiganya, '
+        'Gili Indah, berarti pulau kecil yang indah. Bali berjarak sekitar 35 km di '
+        'sebelah barat Gili Trawangan.\n\n'
+        'Setiap pulau punya karakter sendiri. Gili Trawangan paling besar dan paling '
+        'ramai, dengan banyak sekolah selam, dan satu-satunya yang naik sekitar 30 meter '
+        'dari permukaan laut. Gili Meno terkecil dan paling tenang, bisa dikelilingi '
+        'dengan jalan kaki sekitar satu jam. Gili Air paling dekat dengan Lombok dan '
+        'berada di antara keduanya, ramai tapi tidak sehiruk-pikuk Trawangan. Namanya '
+        'berasal dari fakta bahwa hanya pulau ini yang punya air tawar bawah tanah.\n\n'
+        'Di Gili Trawangan, pusat selam menawarkan kursus PADI dari Discover Scuba '
+        'Diving sampai program instruktur, jadi ini tempat yang pas untuk mencoba '
+        'menyelam pertama kali. Di dekat Gili Meno ada patung bawah laut bernama Nest '
+        'yang kini menjadi rumah biota laut. Dari Bali, kapal cepat berangkat dari Padang '
+        'Bai atau Sanur.',
+    latitude: -8.35,
+    longitude: 116.06,
+    depthText:
+        'Titik pemula dangkal mulai sekitar 5 m, titik dalam sampai 30-40 m',
+    bestSeason: 'April-Oktober (kemarau), bisa sepanjang tahun',
+    biota: [
+      'Penyu hijau dan sisik',
+      'Hiu karang sirip hitam dan putih',
+      'Pari manta (akhir tahun)',
+      'Pari elang',
+      'Bumphead parrotfish',
+      'Moray',
+      'Nudibranch',
+      'Ikan kelelawar',
+      'Ikan badut',
+    ],
+    photo: SpotPhoto(
+      url: 'https://image.idntimes.com/post/20220211/33727847-149966089196156-7904293099562598400-n-3f470419c48481a410869607195370a0-ad36f8a8b83f99e6c7e4c8a82f129f3f.jpg?tr=w-1200,f-webp,q-75&width=1200&format=webp&quality=75',
+      sourceUrl: 'https://ntb.idntimes.com/travel/destination/gili-meno-wisata-eksotis-yang-menenangkan-di-lombok-utara-00-lm183-m47mtn',
+    ),
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Gili Islands (koordinat, nama, ukuran) - https://en.wikipedia.org/wiki/Gili_Islands',
+      'Indonesia.travel (karakter tiga pulau, sekolah selam) - https://www.indonesia.travel/jp/ja/yacht/marina/medana-bay-lombok',
+      'Gili IDC (kursus PADI) - https://www.giliidc.com/?p=227',
+      'Quotidiano (patung bawah laut Nest) - https://www.quotidiano.net/itinerari/viaggi/estero/gili-isole-oceano-indiano-ls089ec1',
+      'DirectFerries (kapal dari Padang Bai/Sanur, keliling pulau) - https://www.directferries.de/blog/reisefuehrer-gili-inseln-anreise-und-aktivitaeten',
+      _timeZoneNote,
+      'Manta Dive (musim, titik pemula, kedalaman) - https://manta-dive.com/diving-the-gilis/gili-dive-sites/',
+      'PADI: Top 8 Dive Sites Gili (Halik Reef, biota) - https://blog.padi.com/top-8-dive-sites-in-gili-islands-indonesia/',
+      'DiveSSI: Gili (kedalaman) - https://www.divessi.com/en/blog/best-diving-in-gili-island-9011.html',
+      'Underwater Asia: Lombok dan Gili (tempat belajar menyelam) - https://www.underwaterasia.info/indonesia/lombok-gili-islands-diving',
+    ],
+  ),
+  Spot(
+    id: 'nusa-penida',
+    name: 'Nusa Penida',
+    region: 'Bali',
+    level: SpotLevel.menengah,
+    levelBasis:
+        'Sebagian besar titik selam berarus cukup kuat, tetapi Crystal Bay ramah pemula '
+        '(Liveaboard.com, BaliOcean). Estimasi tim, perlu ditinjau.',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Tempat bertemu pari manta, dan mola mola di musimnya, hanya sekitar 15 km dari Bali.',
+    summary:
+        'Nusa Penida adalah pulau di tenggara Bali yang dipisahkan Selat Badung, sekitar '
+        '15 km dari daratan Bali. Pulau ini sekaligus kecamatan di Kabupaten Klungkung '
+        'yang mencakup Nusa Lembongan, Nusa Ceningan, dan pulau-pulau kecil lain. '
+        'Dibanding Bali, pulaunya lebih kering, dan bersama Lembongan serta Ceningan, '
+        'pulau ini menjadi cagar burung.\n\n'
+        'Di bawah air ada beberapa titik selam yang bisa dipilih. Manta Point terkenal '
+        'karena pari manta datang ke sana untuk dibersihkan dan bisa dijumpai hampir '
+        'sepanjang tahun. Crystal Bay punya air sangat jernih dan sering disebut ramah '
+        'untuk pemula, juga tempat melihat mola mola atau ikan matahari raksasa, terutama '
+        'saat air lebih dingin sekitar Juli sampai Oktober. Toya Pakeh dikenal sebagai '
+        'salah satu wall dive terbaik, sementara Batu Meling, Batu Abah, dan Malibu '
+        'Point melengkapi pilihan lain.\n\n'
+        'Perlu diingat, sebagian besar titik selam punya arus yang cukup kuat dan kadang '
+        'tak terduga. Di Manta Point suhu air bisa turun ke sekitar 20 sampai 24 derajat '
+        'Celsius. Kapal liveaboard dari Benoa atau Sanur butuh sekitar dua jam ke '
+        'pulau ini.',
+    latitude: -8.73333,
+    longitude: 115.53333,
+    depthText: 'Titik populer sekitar 5-40 m (Crystal Bay sampai 60 m lebih)',
+    bestSeason: 'April-Oktober, pari manta hampir sepanjang tahun, mola mola sekitar Juli-Oktober',
+    biota: [
+      'Pari manta (sayap sampai 4-5 m)',
+      'Mola mola (ikan matahari)',
+      'Hiu paus (jarang, setelah November)',
+      'Penyu',
+      'Karang keras dan lunak',
+    ],
+    photo: SpotPhoto(
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Broken_Beach.jpg/960px-Broken_Beach.jpg?utm_source=id.wikipedia.org&utm_campaign=parser&utm_content=thumbnail',
+      sourceUrl: 'https://id.wikipedia.org/wiki/Nusa_Penida',
+    ),
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Nusa Penida (koordinat, titik selam, cagar burung) - https://en.wikipedia.org/wiki/Nusa_Penida',
+      'Liveaboard.com (manta, mola mola, arus) - https://www.liveaboard.com/diving/indonesia/nusa-penida?CID=7796',
+      'BaliOcean (Crystal Bay ramah pemula) - https://www.baliocean.com/?p=25919',
+      'Bali Fun Diving (suhu air, Manta Point) - https://balifundiving.com/experience-diving-in-nusa-penida/',
+      'Indonesia.travel (spot snorkeling) - https://www.indonesia.travel/sa-en/destination/bali-nusa-tenggara/bali/snorkeling-nusa-penida',
+      _timeZoneNote,
+      'Abyss Ocean World (kedalaman titik selam) - https://abyssoceanworld.com/?p=9996',
+      'GetMyBoat (manta, hiu paus, arus Crystal Bay) - https://www.getmyboat.com/trips/VYm1Jk7Y/',
+      'Bali Fun Diving (musim, mola mola) - https://balifundiving.com/?p=12148',
+      'BaliOcean (Blue Corner, Crystal Bay) - https://www.baliocean.com/dive-sites/nusa-penida/',
+    ],
+  ),
+  Spot(
+    id: 'tulamben',
+    name: 'Tulamben (USAT Liberty)',
+    region: 'Bali',
+    level: SpotLevel.pemula,
+    levelBasis:
+        'Wikipedia menyebut bangkai kapalnya cocok untuk penyelam semua tingkat '
+        'sertifikasi.',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Menyelam ke bangkai kapal Perang Dunia II yang bisa dijangkau langsung dari pantai.',
+    summary:
+        'Tulamben adalah desa nelayan kecil di pantai timur laut Bali. Daya tarik '
+        'utamanya adalah USAT Liberty, kapal kargo Angkatan Darat Amerika yang '
+        'ditorpedo kapal selam Jepang pada Januari 1942 lalu dikandaskan di sini agar '
+        'muatannya bisa diselamatkan. Pada 1963, letusan Gunung Agung menggeser kapal itu '
+        'ke laut, dan sejak itu karang tumbuh menutupinya.\n\n'
+        'Bangkai kapal sepanjang sekitar 125 meter ini terbaring tidak jauh dari '
+        'pantai berbatu, cukup berenang singkat dari tepi pantai. Bagian tertingginya '
+        'sekitar 5 meter dari permukaan dan yang terdalam sekitar 30 meter, jadi cocok '
+        'untuk penyelam semua tingkat sertifikasi dan juga snorkeling. Airnya hangat, '
+        'sekitar 28 sampai 30 derajat Celsius. Di sekitar bangkai kapal ada kawanan '
+        'kuwe, bream, fusilier, dan anthias, ditambah ikan bumphead parrotfish, napoleon '
+        'wrasse, dan barakuda. Di dekatnya ada zona Coral Garden pada kedalaman 4 sampai '
+        '25 meter, dan di kedalaman 15 meter ada pura kecil di bawah laut.\n\n'
+        'Kondisi selam terbaik biasanya pada Oktober dan November. Pada musim tertentu, '
+        'mola mola, hiu paus, dan hiu sirip hitam sering mampir. Di musim ramai, sampai '
+        '100 penyelam turun ke bangkai kapal setiap hari.',
+    biota: [
+      'Kawanan kuwe, bream, fusilier, anthias',
+      'Bumphead parrotfish',
+      'Napoleon wrasse',
+      'Barakuda',
+      'Mola mola dan hiu paus (musim tertentu)',
+    ],
+    latitude: -8.27441,
+    longitude: 115.59490,
+    depthText: 'Sekitar 5-30 m',
+    bestSeason: 'Oktober-November (kondisi paling tenang)',
+    photo: SpotPhoto(
+      url: 'https://lovebali.baliprov.go.id/storage/touriest_destinations/img-165828977362d77e6d10be9.jpg',
+      sourceUrl:
+          'https://lovebali.baliprov.go.id/destination/detail/34/tulamben',
+    ),
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Tulamben (musim, tingkat sertifikasi, pura bawah laut) - https://en.wikipedia.org/wiki/Tulamben',
+      'Wikipedia: USAT Liberty (ukuran, kedalaman, koordinat OpenStreetMap) - https://en.wikipedia.org/wiki/USAT_Liberty',
+      'Tulamben Wreck Divers (biota di bangkai kapal) - https://www.tulambenwreckdivers.com/Liberty-Wreck',
+      'BaliOcean (suhu air, semua level) - https://www.baliocean.com/blog/usat-liberty-wreck-tulamben-bali/',
+      'Pacific Wrecks (riwayat kapal) - https://pacificwrecks.com/ship/usat/liberty.html',
+      _timeZoneNote,
+    ],
+  ),
+  Spot(
+    id: 'cenderawasih',
+    name: 'Teluk Cenderawasih',
+    region: 'Papua',
+    level: SpotLevel.menengah,
+    levelBasis: _levelNote,
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Taman nasional laut terbesar Indonesia, tempat berenang bersama hiu paus di bawah bagan nelayan.',
+    summary:
+        'Taman Nasional Teluk Cenderawasih adalah taman nasional laut terbesar di '
+        'Indonesia, di tenggara Semenanjung Kepala Burung, Papua. Luasnya sekitar '
+        '14.535 km2 atau sekitar 1,4 juta hektare yang mencakup dua kabupaten, Nabire '
+        'di Papua dan Teluk Wondama di Papua Barat. Taman ini ditetapkan lewat SK '
+        'Menteri Kehutanan pada 29 Agustus 2002.\n\n'
+        'Daya tarik utamanya adalah hiu paus. Di sekitar Teluk Kwatisore, di selatan '
+        'taman, ada sekitar 23 bagan atau platform penangkap ikan yang menurut nelayan '
+        'didatangi hiu paus sepanjang tahun untuk menyedot ikan kecil dari jaring. '
+        'Perilaku ini tercatat pertama kali di dunia di sini. Sampai Agustus 2023 ada 188 '
+        'hiu paus yang teridentifikasi. Pengunjung diminta mengikuti kode etik, termasuk '
+        'tidak memakai blitz kamera karena bisa mengganggu hiu.\n\n'
+        'Selain hiu paus, perairannya dihuni dugong, lumba-lumba, dan ikan karang '
+        'seperti ikan badut dan ikan kupu-kupu. Kebanyakan wisatawan asing datang lewat '
+        'kapal liveaboard. Pengunjung bisa terbang ke Biak, dan dari Nabire perjalanan '
+        'ke taman sekitar tiga jam dengan speedboat.',
+    latitude: -2.5,
+    longitude: 134.633,
+    depthText: 'Sekitar 5-40 m',
+    bestSeason:
+        'Hiu paus ada sepanjang tahun, paling banyak diselami Juni-Oktober',
+    biota: [
+      'Hiu paus',
+      'Penyu (sisik, hijau, lekang, belimbing)',
+      'Dugong',
+      'Lumba-lumba',
+      'Ikan badut',
+      'Ikan kupu-kupu',
+      'Bangkai kapal Perang Dunia II',
+    ],
+    photo: SpotPhoto(
+      url: 'https://genpi.id/wp-content/uploads/2020/09/WhatsApp-Image-2020-09-11-at-3.37.34-PM.jpeg',
+      sourceUrl: 'https://genpi.id/teluk-cenderawasih-surga-bawah-laut-papua/',
+    ),
+    timeZoneLabel: 'WIT',
+    sources: [
+      'Wikipedia: Teluk Cenderawasih National Park (koordinat, luas, biota) - https://en.wikipedia.org/wiki/Teluk_Cenderawasih_National_Park',
+      'Antara News (SK 2002, jumlah hiu paus 2023) - https://en.antaranews.com/news/295338/a-massive-undertaking-to-protect-whale-sharks-in-indonesia',
+      'Divers Alert Network (bagan Kwatisore, perilaku hiu paus) - https://dan.org/alert-diver/article/cenderawasih-bay/',
+      'Jakarta Post (kode etik, wisatawan) - https://www.thejakartapost.com/news/2017/05/30/whale-sharks-draw-tourists-nabire',
+      'Jakarta Post (luas, akses) - https://www.thejakartapost.com/travel/2017/05/13/cenderawasih-bay-a-haven-for-whale-shark-enthusiasts',
+      _timeZoneNote,
+      'Bluewater Dive Travel: Cenderawasih (kedalaman, musim) - https://www.bluewaterdivetravel.com/cenderawasih-bay-diving',
+      'Liveaboard.com: Cenderawasih (musim liveaboard, penyu) - https://www.liveaboard.com/diving/indonesia/cenderawasih-bay/scuba',
+      'PADI: Whale Shark Diving (Kwatisore, Juni-Oktober) - https://blog.padi.com/tw/whale-shark-diving-the-best-dive-sites-in-the-world/',
+    ],
+  ),
+  Spot(
+    id: 'banda',
+    name: 'Kepulauan Banda',
+    region: 'Maluku',
+    level: SpotLevel.menengah,
+    levelBasis: 'Sebagian besar titik cocok untuk semua level, kecuali beberapa yang berarus kuat dan hanya untuk penyelam lanjut (Bluewater Dive Travel, Ocean Earth Travels).',
+    types: [SpotType.scuba, SpotType.snorkeling],
+    tagline: 'Pulau rempah dengan gunung api aktif, aliran lava yang kini jadi taman karang, dan gunung laut hiu martil.',
+    summary:
+        'Kepulauan Banda di Maluku terdiri dari 11 pulau, tujuh di antaranya berpenghuni, '
+        'dengan sekitar 20.900 penduduk (Sensus 2020). Sampai pertengahan abad ke-19, '
+        'kepulauan ini adalah satu-satunya penghasil pala dan fuli di dunia. Kebun pala '
+        'dan kenari masih menaungi bukit-bukitnya, dan Banda Neira sebagai kota utama '
+        'menyimpan bangunan bergaya kolonial serta museum yang bercerita tentang sejarah '
+        'rempah.\n\n'
+        'Gunung Api, gunung berapi aktif setinggi sekitar 650 meter, menjulang tepat di '
+        'sebelah Banda Neira. Letusan 1988 mengalirkan lava ke laut, dan kini aliran '
+        'lava itu dihuni karang keras yang tumbuh sangat cepat. Titik selamnya dikenal '
+        'dengan nama Lava Flows. Di perairan lepas, penyelam bisa bertemu tuna, tuna '
+        'gigi anjing, kawanan kuwe, ular laut di Manuk, dan hiu martil di gunung laut.\n\n'
+        'Musim selamnya singkat, kira-kira Maret sampai April dan September sampai '
+        'November, mengikuti jendela penyeberangan kapal. Di Banda Neira ada operator '
+        'selam yang buka saat musim.',
+    latitude: -4.583,
+    longitude: 129.917,
+    depthText: 'Sekitar 5-40 m (dinding di Pulau Ai turun sampai 60 m)',
+    biota: [
+      'Tuna',
+      'Tuna gigi anjing',
+      'Kawanan fusilier',
+      'Ikan pemicu gigi merah',
+      'Ular laut (Manuk)',
+      'Hiu martil',
+      'Mandarinfish',
+      'Honeycomb moray',
+      'Karang keras di aliran lava',
+    ],
+    bestSeason: 'Sekitar Maret-April dan September-November',
+    photo: SpotPhoto(
+      url: 'https://econusa.id/wp-content/uploads/2023/10/banda-1536x1151.webp',
+      sourceUrl:
+          'https://econusa.id/id/ecodefender/keistimewaan-kepulauan-banda/',
+    ),
+    timeZoneLabel: 'WIT',
+    sources: [
+      'Wikipedia: Banda Islands (jumlah pulau, pala, gunung api) - https://en.wikipedia.org/wiki/Banda_Islands',
+      'Wikipedia: Banda Neira (kaldera terendam) - https://en.wikipedia.com/wiki/Bandanaira',
+      'Ocean Earth Travels (lava 1988, musim selam, hiu martil) - https://www.oceanearthtravels.com/destinations/banda-sea/',
+      'Indo Pacific Images (Lava Flows, operator selam) - https://indopacificimages.com/?p=42334',
+      'YIT (satwa laut lepas, bangunan kolonial, museum) - https://www.yit.nz/node/66431',
+      _timeZoneNote,
+      'Emperor Divers (kedalaman, visibilitas, suhu) - https://emperordivers.com/banda-islands-part-3',
+      'Bluewater Dive Travel: Banda Sea (level, arus) - https://www.bluewaterdivetravel.com/banda-sea-diving',
+      'Dive The World: Banda (Pulau Ai, dinding 60 m) - https://dive-the-world.com/diving-sites-indonesia-banda-islands.php',
+    ],
+  ),
+  Spot(
+    id: 'menjangan',
+    name: 'Pulau Menjangan',
+    region: 'Bali',
+    level: SpotLevel.menengah,
+    levelBasis:
+        'Penyelam perlu sertifikasi dasar (Bali Fun Diving), kondisinya disebut mudah '
+        '(Lloyd Borrett). Estimasi tim, perlu ditinjau.',
+    types: [SpotType.scuba],
+    tagline: 'Lokasi selam pertama Bali yang terkenal di dunia, dengan dinding karang dan jarak pandang lebih dari 50 meter.',
+    summary:
+        'Pulau Menjangan adalah pulau kecil sekitar 5 mil di barat laut Bali, bagian '
+        'dari Taman Nasional Bali Barat dan masuk wilayah Buleleng. Menjangan berarti '
+        'rusa, nama yang diberikan warga setempat setelah melihat kawanan rusa berenang '
+        'ke pulau ini tiap musim semi. Di pulau ada dermaga, tiga pura Hindu, dan satwa '
+        'seperti rusa, kelinci liar, biawak, dan ayam hutan.\n\n'
+        'Menjangan lazim disebut lokasi selam pertama di Bali yang terkenal secara '
+        'internasional, dan terumbunya termasuk yang paling terjaga di kawasan itu. '
+        'Dindingnya turun dari 10 sampai 60 meter lebih, penuh celah dan overhang dengan '
+        'karang lunak, spons, dan kipas gorgonia terbanyak di Bali, kadang dengan kuda '
+        'laut pigmi di dalamnya. Airnya hangat dengan jarak pandang bisa melewati 50 '
+        'meter, dan kondisinya relatif mudah untuk wall diving. Di kedalaman 45 meter '
+        'ada bangkai kapal Anchor yang tertutup karang lunak.\n\n'
+        'Hiu paus kadang terlihat, tetapi satwa pelagis agak jarang karena pulau ini '
+        'terlindung dari arus dingin. Perjalanan dari daratan Bali sekitar 30 menit '
+        'dengan perahu, dan semua toko selam di sekitar mengatur trip harian. Kondisinya '
+        'bagus sepanjang tahun, dengan jarak pandang dan cuaca terbaik biasanya April '
+        'sampai November. Penyelam perlu punya sertifikasi dasar.',
+    biota: [
+      'Kipas gorgonia',
+      'Kuda laut pigmi',
+      'Karang lunak',
+      'Spons',
+      'Penyu',
+      'Hiu paus (kadang)',
+    ],
+    depthText: 'Dinding 10 m sampai lebih dari 60 m',
+    bestSeason: 'April-November (jarak pandang dan cuaca terbaik)',
+    photo: SpotPhoto(
+      url: 'https://balifundiving.com/wp-content/uploads/2025/05/menjangan-island-diving.webp',
+      sourceUrl: 'https://balifundiving.com/id/situs-menyelam-di-bali/pulau-menjangan/',
+    ),
+    latitude: -8.09604,
+    longitude: 114.51489,
+    timeZoneLabel: 'WITA',
+    sources: [
+      'Wikipedia: Menjangan Island (lokasi, nama, satwa, terumbu) - https://en.wikipedia.org/wiki/Menjangan_Island',
+      'Indonesia.travel (wall diving, bangkai kapal Anchor) - https://www.indonesia.travel/in-en/destination/bali-nusa-tenggara/bali/bali---menjangan-island',
+      'Lloyd Borrett (jarak pandang, gorgonia, pelagis) - https://www.borrett.id.au/divelog/divecity.php?id=40',
+      'Bali Fun Diving (sertifikasi, musim terbaik) - https://balifundiving.com/bali-dive-sites/menjangan-island/',
+      _timeZoneNote,
+      'Koordinat Pulau Menjangan diisi manual oleh tim (cocokkan dengan peta).',
     ],
   ),
 ];

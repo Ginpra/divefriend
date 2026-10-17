@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/level_badge.dart';
 import 'package:divefriend/core/widgets/spot_photo_view.dart';
@@ -7,18 +8,13 @@ import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/shared/placeholder_screen.dart';
 
 /// Detail spot. Baris yang butuh API/sensor (gelombang, harga 4 mata uang, jam briefing)
-/// masih berupa penanda tahap; diisi di Tahap 4 dan seterusnya.
+/// masih berupa penanda tahap, diisi di Tahap 4 dan seterusnya.
 class SpotDetailScreen extends StatelessWidget {
   const SpotDetailScreen({super.key, required this.spot});
 
   final Spot spot;
 
   static const String _unavailable = 'tidak tersedia';
-
-  String get _depthText {
-    final depth = spot.depthMeters;
-    return depth == null ? _unavailable : '${depth.toStringAsFixed(0)} m';
-  }
 
   String get _priceText {
     final price = spot.priceEstimateIdr;
@@ -30,6 +26,15 @@ class SpotDetailScreen extends StatelessWidget {
     final longitude = spot.longitude;
     if (latitude == null || longitude == null) return _unavailable;
     return '${latitude.toStringAsFixed(3)}, ${longitude.toStringAsFixed(3)} (titik pusat kawasan)';
+  }
+
+  /// Teks kredit foto, hanya ada kalau data kreditnya diisi (foto berlisensi atribusi).
+  String? get _photoCreditText {
+    final photo = spot.photo;
+    final credit = photo?.credit;
+    if (photo == null || credit == null) return null;
+    final license = photo.license;
+    return license == null ? 'Foto: $credit' : 'Foto: $credit ($license)';
   }
 
   String get _biotaText =>
@@ -48,8 +53,7 @@ class SpotDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final photo = spot.photo;
-    final summary = spot.summary;
-    final history = spot.history;
+    final photoCredit = _photoCreditText;
 
     return Scaffold(
       appBar: AppBar(title: Text(spot.name)),
@@ -57,13 +61,10 @@ class SpotDetailScreen extends StatelessWidget {
         children: [
           const DisclaimerBanner(),
           SpotPhotoView(photo: photo, height: 200),
-          if (photo != null)
+          if (photoCredit != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-              child: Text(
-                'Foto: ${photo.credit} (${photo.license})',
-                style: const TextStyle(fontSize: 11),
-              ),
+              child: Text(photoCredit, style: const TextStyle(fontSize: 11)),
             ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -85,29 +86,37 @@ class SpotDetailScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(spot.region),
-                const SizedBox(height: 4),
-                Text(
-                  'Dasar level: ${spot.levelBasis}',
-                  style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                Row(
+                  children: [
+                    const Icon(Icons.place_outlined, size: 16),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text(spot.region)),
+                  ],
                 ),
-                if (summary != null) ...[
-                  const SizedBox(height: 16),
-                  Text(summary, style: const TextStyle(height: 1.4)),
-                ],
-                if (history != null) ...[
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Sejarah singkat',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                const SizedBox(height: 12),
+                Text(
+                  spot.tagline,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                    color: AppColors.navy,
                   ),
-                  const SizedBox(height: 6),
-                  Text(history, style: const TextStyle(height: 1.4)),
-                ],
-                const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 12),
+                for (final paragraph in spot.summary.split('\n\n'))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      paragraph,
+                      textAlign: TextAlign.justify,
+                      style: const TextStyle(height: 1.5),
+                    ),
+                  ),
+                const SizedBox(height: 4),
                 _InfoRow(label: 'Jenis', value: _typesText),
                 _InfoRow(label: 'Koordinat', value: _coordinateText),
-                _InfoRow(label: 'Kedalaman', value: _depthText),
+                _InfoRow(label: 'Kedalaman', value: spot.depthText ?? _unavailable),
                 _InfoRow(
                   label: 'Musim terbaik',
                   value: spot.bestSeason ?? _unavailable,
@@ -117,6 +126,12 @@ class SpotDetailScreen extends StatelessWidget {
                 _InfoRow(
                   label: 'Zona waktu',
                   value: spot.timeZoneLabel ?? _unavailable,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Dasar level: ${spot.levelBasis}',
+                  textAlign: TextAlign.justify,
+                  style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
                 ),
                 const Divider(height: 32),
                 const _InfoRow(
