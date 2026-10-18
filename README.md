@@ -1,6 +1,6 @@
 # divefriend
 
-A new Flutter project.
+Project Diving Mobile Teori
 
 ## Getting Started
 
