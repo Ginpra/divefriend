@@ -57,6 +57,14 @@ void main() {
     }
   });
 
+  test('setiap spot punya harga paket simulasi kelipatan 100 ribu rupiah', () {
+    for (final spot in spotsSeed) {
+      final price = spot.priceEstimateIdr;
+      expect(price, isNotNull, reason: '${spot.id}: harga simulasi kosong');
+      expect(price! % 100000, 0, reason: '${spot.id}: harga $price bukan kelipatan 100 ribu');
+    }
+  });
+
   test('angka harga (jika ada) harus positif', () {
     for (final spot in spotsSeed) {
       final price = spot.priceEstimateIdr;

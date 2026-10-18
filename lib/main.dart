@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
@@ -9,6 +10,8 @@ import 'package:divefriend/features/auth/login_screen.dart';
 import 'package:divefriend/features/home/home_screen.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/biometric_service.dart';
+import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/marine_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +19,14 @@ Future<void> main() async {
   final spotRepository = SqliteSpotRepository(AppDatabase.instance);
   await spotRepository.ensureSeeded();
 
+  // Satu klien HTTP dipakai bersama oleh layanan kurs dan gelombang.
+  final httpClient = http.Client();
+
   final services = AppServices(
     spots: spotRepository,
     auth: AuthService(SqliteUserRepository(AppDatabase.instance), BiometricService()),
+    rates: FrankfurterRateService(httpClient),
+    marine: OpenMeteoMarineService(httpClient),
   );
 
   // Kalau session masih ada, langsung ke Beranda tanpa login ulang.

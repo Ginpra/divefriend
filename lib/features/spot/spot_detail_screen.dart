@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/level_badge.dart';
 import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/shared/placeholder_screen.dart';
+import 'package:divefriend/features/spot/briefing_time_card.dart';
+import 'package:divefriend/features/spot/price_card.dart';
+import 'package:divefriend/features/spot/sea_conditions_card.dart';
 
-/// Detail spot. Baris yang butuh API/sensor (gelombang, harga 4 mata uang, jam briefing)
-/// masih berupa penanda tahap, diisi di Tahap 4 dan seterusnya.
+/// Detail spot. Gelombang (Open-Meteo), harga 4 mata uang (Frankfurter), dan jam briefing
+/// (hitung sendiri) masing-masing punya kartu sendiri supaya layar ini tetap pendek.
 class SpotDetailScreen extends StatelessWidget {
-  const SpotDetailScreen({super.key, required this.spot});
+  const SpotDetailScreen({super.key, required this.spot, required this.services});
 
   final Spot spot;
+  final AppServices services;
 
   static const String _unavailable = 'tidak tersedia';
-
-  String get _priceText {
-    final price = spot.priceEstimateIdr;
-    return price == null ? _unavailable : 'Rp $price';
-  }
 
   String get _coordinateText {
     final latitude = spot.latitude;
@@ -122,7 +122,6 @@ class SpotDetailScreen extends StatelessWidget {
                   value: spot.bestSeason ?? _unavailable,
                 ),
                 _InfoRow(label: 'Biota', value: _biotaText),
-                _InfoRow(label: 'Harga estimasi', value: _priceText),
                 _InfoRow(
                   label: 'Zona waktu',
                   value: spot.timeZoneLabel ?? _unavailable,
@@ -134,19 +133,10 @@ class SpotDetailScreen extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
                 ),
                 const Divider(height: 32),
-                const _InfoRow(
-                  label: 'Gelombang hari ini',
-                  value: 'Diisi di Tahap 4 (Open-Meteo)',
-                ),
-                const _InfoRow(
-                  label: 'Harga 4 mata uang',
-                  value: 'Diisi di Tahap 4',
-                ),
-                const _InfoRow(
-                  label: 'Jam briefing',
-                  value: 'Lokal vs London, diisi di Tahap 4',
-                ),
-                const SizedBox(height: 16),
+                SeaConditionsCard(spot: spot, marine: services.marine),
+                PriceCard(spot: spot, rates: services.rates),
+                BriefingTimeCard(spot: spot),
+                const SizedBox(height: 2),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(

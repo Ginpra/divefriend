@@ -2,7 +2,7 @@ import 'package:divefriend/data/models/spot.dart';
 
 /// Naikkan angka ini setiap kali isi [spotsSeed] diubah, supaya database
 /// di HP memuat ulang data terbaru saat aplikasi dibuka.
-const int spotsSeedVersion = 9;
+const int spotsSeedVersion = 10;
 
 const String _levelNote =
     'Estimasi sementara tim, belum ada sumber penilaian level. Perlu ditinjau.';
@@ -12,6 +12,11 @@ const String _timeZoneNote =
 /// Data spot hasil kurasi manual. Aturan: setiap nilai harus punya sumber,
 /// yang tidak ditemukan dibiarkan kosong (tampil "tidak tersedia").
 /// Teks deskripsi adalah parafrase bahasa Indonesia dari sumber yang tercantum.
+/// Harga paket simulasi (rupiah per orang, satu hari selam dengan dua kali penyelaman).
+/// Ini angka tetapan tim untuk keperluan tugas, BUKAN tarif operator mana pun, jadi tidak
+/// punya sumber dan wajib diberi label "Harga simulasi" di layar. Dibuat bertingkat menurut
+/// kemudahan akses: 1.200.000 (akses mudah), 1.500.000 (perlu transportasi tambahan),
+/// 2.000.000 (kawasan terpencil), 3.000.000 (sangat terpencil atau bergaya ekspedisi).
 const List<Spot> spotsSeed = [
   Spot(
     id: 'bunaken',
@@ -59,6 +64,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://www.traveloka.com/id-id/explore/destination/taman-nasional-bunaken-surga-bawah-laut-di-sulawesi-utara-acc/180596',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1500000,
     sources: [
       'Wikipedia: Bunaken National Park (luas, dinding karang, keanekaragaman) - https://en.wikipedia.org/wiki/Bunaken_National_Park',
       'Wikipedia: Bunaken (suhu air, kima raksasa) - https://en.wikipedia.org/wiki/Bunaken',
@@ -114,6 +120,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://backpackerjakarta.com/taman-nasional-wakatobi-salah-satu-surga-bawah-laut-indonesia-yang-mendunia/',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 3000000,
     sources: [
       'Wikipedia: Wakatobi Regency (koordinat, luas, cagar biosfer, Benteng Liya) - https://en.wikipedia.org/wiki/Wakatobi_Regency',
       'Underwater Asia (jenis lanskap selam) - https://dev.underwaterasia.info/countries/indonesia',
@@ -167,6 +174,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://commons.wikimedia.org/wiki/File:Raja_Ampat,_Mutiara_Indah_di_Timur_Indonesia.jpg',
     ),
     timeZoneLabel: 'WIT',
+    priceEstimateIdr: 3000000,
     sources: [
       'Wikipedia: Raja Ampat Islands (koordinat, keanekaragaman, status) - https://www.wikipedia.org/wiki/Raja_Ampat',
       'Underwater Asia (liveaboard, kualitas selam) - https://dev.underwaterasia.info/countries/indonesia',
@@ -222,6 +230,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://suarapemerintah.id/2022/02/ke-taman-nasional-komodo-wajib-abadikan-6-spot-instagenic-ini/',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 2000000,
     sources: [
       'Wikipedia: Komodo National Park (koordinat, 1980, zona laut) - https://en.wikipedia.org/wiki/Komodo_National_Park',
       'UNESCO World Heritage: Komodo (perluasan 1984, 219.322 ha) - https://whc.unesco.org/document/153875',
@@ -274,6 +283,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://www.tempo.co/hiburan/4-keunikan-kepulauan-karimunjawa-nan-eksotis-302277',
     ),
     timeZoneLabel: 'WIB',
+    priceEstimateIdr: 1200000,
     sources: [
       'Wikipedia: Karimunjawa (koordinat, luas, penduduk) - https://en.wikipedia.org/wiki/Karimunjawa',
       'Wikipedia: Karimunjawa National Park (penyu, lamun) - https://en.wikipedia.org/wiki/Karimunjawa_National_Park',
@@ -330,6 +340,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://www.iwarebatik.org/derawan-island-marine-conservation-site-tourism/?lang=id',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 2000000,
     sources: [
       'Wikipedia: Derawan Islands (semua data kepulauan) - https://en.wikipedia.org/wiki/Derawan_Islands',
       _timeZoneNote,
@@ -383,6 +394,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://okuselatan.disway.id/traveling/read/640498/pulau-weh-pesona-keindahan-alami-yang-memikat-di-aceh',
     ),
     timeZoneLabel: 'WIB',
+    priceEstimateIdr: 1500000,
     sources: [
       'Wikipedia: Weh Island (koordinat, luas, Rubiah, Iboih) - https://en.wikipedia.org/wiki/Weh_Island',
       'Wikivoyage: Sabang (snorkeling dan selam, titik paling barat) - https://en.wikivoyage.org/wiki/Sabang_(Indonesia)',
@@ -443,6 +455,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://www.tiket.com/id-id/to-do/5d4n-togean-trip-by-travel-buddies',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 2000000,
     sources: [
       'Wikipedia: Togian Islands (koordinat, taman nasional, resor) - https://en.wikipedia.org/wiki/Togian_Islands',
       'Wikipedia: Togean Island (terumbu karang terawetkan) - https://en.wikipedia.org/wiki/Togean_Island',
@@ -498,6 +511,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://www.tripadvisor.co.id/Hotel_Review-g680020-d10520101-Reviews-Dive_Into_Lembeh-Bitung_North_Sulawesi_Sulawesi.html',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1500000,
     sources: [
       'Wikipedia: Lembeh (koordinat, biota, cuaca) - https://en.wikipedia.org/wiki/Lembeh',
       'WorldAtlas (88 titik selam, kedalaman, biota) - https://www.worldatlas.com/articles/where-is-the-lembeh-strait.html',
@@ -551,6 +565,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://ntb.idntimes.com/travel/destination/gili-meno-wisata-eksotis-yang-menenangkan-di-lombok-utara-00-lm183-m47mtn',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1200000,
     sources: [
       'Wikipedia: Gili Islands (koordinat, nama, ukuran) - https://en.wikipedia.org/wiki/Gili_Islands',
       'Indonesia.travel (karakter tiga pulau, sekolah selam) - https://www.indonesia.travel/jp/ja/yacht/marina/medana-bay-lombok',
@@ -607,6 +622,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://id.wikipedia.org/wiki/Nusa_Penida',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1200000,
     sources: [
       'Wikipedia: Nusa Penida (koordinat, titik selam, cagar burung) - https://en.wikipedia.org/wiki/Nusa_Penida',
       'Liveaboard.com (manta, mola mola, arus) - https://www.liveaboard.com/diving/indonesia/nusa-penida?CID=7796',
@@ -664,6 +680,7 @@ const List<Spot> spotsSeed = [
           'https://lovebali.baliprov.go.id/destination/detail/34/tulamben',
     ),
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1200000,
     sources: [
       'Wikipedia: Tulamben (musim, tingkat sertifikasi, pura bawah laut) - https://en.wikipedia.org/wiki/Tulamben',
       'Wikipedia: USAT Liberty (ukuran, kedalaman, koordinat OpenStreetMap) - https://en.wikipedia.org/wiki/USAT_Liberty',
@@ -716,6 +733,7 @@ const List<Spot> spotsSeed = [
       sourceUrl: 'https://genpi.id/teluk-cenderawasih-surga-bawah-laut-papua/',
     ),
     timeZoneLabel: 'WIT',
+    priceEstimateIdr: 3000000,
     sources: [
       'Wikipedia: Teluk Cenderawasih National Park (koordinat, luas, biota) - https://en.wikipedia.org/wiki/Teluk_Cenderawasih_National_Park',
       'Antara News (SK 2002, jumlah hiu paus 2023) - https://en.antaranews.com/news/295338/a-massive-undertaking-to-protect-whale-sharks-in-indonesia',
@@ -772,6 +790,7 @@ const List<Spot> spotsSeed = [
           'https://econusa.id/id/ecodefender/keistimewaan-kepulauan-banda/',
     ),
     timeZoneLabel: 'WIT',
+    priceEstimateIdr: 3000000,
     sources: [
       'Wikipedia: Banda Islands (jumlah pulau, pala, gunung api) - https://en.wikipedia.org/wiki/Banda_Islands',
       'Wikipedia: Banda Neira (kaldera terendam) - https://en.wikipedia.com/wiki/Bandanaira',
@@ -829,6 +848,7 @@ const List<Spot> spotsSeed = [
     latitude: -8.09604,
     longitude: 114.51489,
     timeZoneLabel: 'WITA',
+    priceEstimateIdr: 1200000,
     sources: [
       'Wikipedia: Menjangan Island (lokasi, nama, satwa, terumbu) - https://en.wikipedia.org/wiki/Menjangan_Island',
       'Indonesia.travel (wall diving, bangkai kapal Anchor) - https://www.indonesia.travel/in-en/destination/bali-nusa-tenggara/bali/bali---menjangan-island',

@@ -58,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openDetail(Spot spot) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => SpotDetailScreen(spot: spot)),
+      MaterialPageRoute<void>(
+        builder: (_) => SpotDetailScreen(spot: spot, services: widget.services),
+      ),
     );
   }
 

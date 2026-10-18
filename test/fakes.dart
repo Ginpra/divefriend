@@ -1,8 +1,13 @@
 import 'package:divefriend/data/models/app_user.dart';
+import 'package:divefriend/data/models/exchange_rates.dart';
+import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/data/repositories/user_repository.dart';
+import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/biometric_service.dart';
+import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/marine_service.dart';
 
 /// Penyimpanan pengguna di memori, dipakai tes agar tidak butuh SQLite asli.
 class InMemoryUserRepository implements UserRepository {
@@ -81,4 +86,55 @@ class FakeBiometric extends BiometricService {
 
   @override
   Future<bool> authenticate(String reason) async => succeeds;
+}
+
+/// Kurs contoh: angka diambil dari respons nyata Frankfurter tanggal 2026-10-16.
+const ExchangeRates sampleRates = ExchangeRates(
+  date: '2026-10-16',
+  perEuro: {
+    'EUR': 1.0,
+    'IDR': 20290.28,
+    'USD': 1.1253,
+    'SGD': 1.4395,
+    'JPY': 177.82,
+    'AUD': 1.6171,
+  },
+);
+
+/// Layanan kurs palsu: langsung memberi [sampleRates], atau melempar [failure] kalau diisi.
+class FakeRateService implements ExchangeRateService {
+  FakeRateService({this.failure});
+
+  final ApiFailure? failure;
+
+  @override
+  Future<ExchangeRates> fetchLatest({bool forceRefresh = false}) async {
+    final error = failure;
+    if (error != null) throw error;
+    return sampleRates;
+  }
+}
+
+/// Layanan gelombang palsu: memberi [conditions], atau melempar [failure] kalau diisi.
+class FakeMarineService implements MarineService {
+  FakeMarineService({
+    this.conditions = const SeaConditions(
+      currentWaveHeightM: 0.6,
+      maxWaveHeightTodayM: 0.9,
+    ),
+    this.failure,
+  });
+
+  final SeaConditions conditions;
+  final ApiFailure? failure;
+
+  @override
+  Future<SeaConditions> fetchToday({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final error = failure;
+    if (error != null) throw error;
+    return conditions;
+  }
 }

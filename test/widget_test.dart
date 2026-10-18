@@ -3,13 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:divefriend/app_services.dart';
+import 'package:divefriend/data/models/sea_conditions.dart';
+import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/seed/spots_seed.dart';
+import 'package:divefriend/features/converter/time_converter_card.dart';
+import 'package:divefriend/features/spot/briefing_time_card.dart';
 import 'package:divefriend/main.dart';
+import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/auth_service.dart';
+import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/marine_service.dart';
 import 'fakes.dart';
 
 /// Membuat app dengan satu akun siap pakai (budi / password123), tanpa SQLite asli.
-Future<void> _pumpApp(WidgetTester tester) async {
+Future<void> _pumpApp(
+  WidgetTester tester, {
+  ExchangeRateService? rates,
+  MarineService? marine,
+}) async {
   SharedPreferences.setMockInitialValues({});
   final auth = AuthService(
     InMemoryUserRepository(),
@@ -21,6 +32,8 @@ Future<void> _pumpApp(WidgetTester tester) async {
   final services = AppServices(
     spots: InMemorySpotRepository(spotsSeed),
     auth: auth,
+    rates: rates ?? FakeRateService(),
+    marine: marine ?? FakeMarineService(),
   );
   await tester.pumpWidget(DiveFriendApp(services: services));
   await tester.pumpAndSettle();
@@ -80,4 +93,181 @@ void main() {
     expect(find.text('Raja Ampat'), findsOneWidget);
     expect(find.text('Wakatobi'), findsNothing);
   });
+
+  testWidgets('Detail Spot menampilkan gelombang, harga simulasi, dan jam briefing', (tester) async {
+    await _pumpApp(tester);
+    await _openBandaDetail(tester);
+
+    expect(find.text('Gelombang laut hari ini'), findsOneWidget);
+    expect(find.text('0,6 m'), findsOneWidget);
+    expect(find.text('0,9 m'), findsOneWidget);
+
+    expect(find.text('Harga simulasi'), findsOneWidget);
+    expect(find.text('IDR 3.000.000'), findsOneWidget);
+    expect(find.text('USD 166,38'), findsOneWidget);
+    expect(find.text('EUR 147,85'), findsOneWidget);
+    expect(find.text('SGD 212,84'), findsOneWidget);
+
+    expect(find.text('Jam briefing'), findsOneWidget);
+    expect(find.text('07.30 WIT'), findsOneWidget);
+  });
+
+  testWidgets('Detail Spot saat offline: pesan jelas, tombol coba lagi, harga rupiah tetap ada', (tester) async {
+    const offline = ApiFailure(ApiFailureKind.offline);
+    await _pumpApp(
+      tester,
+      rates: FakeRateService(failure: offline),
+      marine: FakeMarineService(failure: offline),
+    );
+    await _openBandaDetail(tester);
+
+    expect(
+      find.text('Tidak ada koneksi internet, data gelombang belum bisa dimuat.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Tidak ada koneksi internet, data kurs belum bisa dimuat.'),
+      findsOneWidget,
+    );
+    expect(find.text('Coba lagi'), findsNWidgets(2));
+    expect(find.text('IDR 3.000.000'), findsOneWidget);
+    expect(find.text('USD 166,38'), findsNothing);
+  });
+
+  testWidgets('Detail Spot dengan data gelombang kosong menampilkan penjelasan', (tester) async {
+    await _pumpApp(tester, marine: FakeMarineService(conditions: const SeaConditions()));
+    await _openBandaDetail(tester);
+
+    expect(
+      find.textContaining('Model belum punya data gelombang untuk titik ini'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('layar Konversi dibuka dari menu dan menghitung kurs', (tester) async {
+    await _pumpApp(tester);
+    await _login(tester, 'budi', 'password123');
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Konversi'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kalkulator mata uang'), findsOneWidget);
+    expect(_textOf(tester, 'currency_result'), '= IDR 1.803.100');
+
+    await tester.enterText(find.byType(TextField), '1');
+    await tester.pumpAndSettle();
+    expect(_textOf(tester, 'currency_result'), '= IDR 18.031');
+
+    await tester.enterText(find.byType(TextField), 'abc');
+    await tester.pumpAndSettle();
+    expect(find.text('Masukkan jumlah berupa angka untuk melihat hasilnya.'), findsOneWidget);
+  });
+
+  testWidgets('kalkulator kurs menampilkan pesan saat offline', (tester) async {
+    await _pumpApp(
+      tester,
+      rates: FakeRateService(failure: const ApiFailure(ApiFailureKind.offline)),
+    );
+    await _login(tester, 'budi', 'password123');
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Konversi'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Tidak ada koneksi internet, data kurs belum bisa dimuat.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('konverter waktu: London memakai BST sebelum dan GMT sesudah 25 Oktober 2026', (tester) async {
+    await _pumpTimeCard(tester, DateTime.utc(2026, 10, 24, 12));
+    expect(_textOf(tester, 'time_wib'), '12.00');
+    expect(_textOf(tester, 'time_wita'), '13.00');
+    expect(_textOf(tester, 'time_wit'), '14.00');
+    expect(_textOf(tester, 'time_london'), '06.00');
+
+    await _pumpTimeCard(tester, DateTime.utc(2026, 10, 25, 12));
+    expect(_textOf(tester, 'time_london'), '05.00');
+  });
+
+  testWidgets('konverter waktu: mengganti zona asal ke WIT', (tester) async {
+    await _pumpTimeCard(tester, DateTime.utc(2026, 10, 24, 12));
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'WIT'));
+    await tester.pump();
+
+    expect(_textOf(tester, 'time_wit'), '12.00');
+    expect(_textOf(tester, 'time_wib'), '10.00');
+    expect(_textOf(tester, 'time_london'), '04.00');
+  });
+
+  testWidgets('jam briefing: London bergeser ke hari sebelumnya saat GMT', (tester) async {
+    final wakatobi = spotsSeed.firstWhere((spot) => spot.id == 'wakatobi');
+
+    await _pumpBriefing(tester, wakatobi, DateTime.utc(2026, 10, 18, 3));
+    expect(find.text('07.30 WITA'), findsOneWidget);
+    expect(find.text('00.30 BST'), findsOneWidget);
+
+    await _pumpBriefing(tester, wakatobi, DateTime.utc(2026, 10, 27, 3));
+    expect(find.text('23.30 GMT (hari sebelumnya)'), findsOneWidget);
+  });
+
+  testWidgets('jam briefing tanpa zona waktu spot menampilkan tidak tersedia', (tester) async {
+    const spot = Spot(
+      id: 'uji',
+      name: 'Spot Uji',
+      region: 'Uji',
+      level: SpotLevel.pemula,
+      levelBasis: 'uji',
+      types: [SpotType.scuba],
+      tagline: 'uji',
+      summary: 'uji',
+      sources: ['uji'],
+    );
+    await _pumpBriefing(tester, spot, DateTime.utc(2026, 10, 18, 3));
+
+    expect(
+      find.text('Jam briefing tidak tersedia karena zona waktu spot belum diketahui.'),
+      findsOneWidget,
+    );
+  });
+}
+
+/// Login lalu buka Detail Spot Kepulauan Banda (WIT, harga simulasi 3.000.000 rupiah).
+Future<void> _openBandaDetail(WidgetTester tester) async {
+  await _login(tester, 'budi', 'password123');
+  await tester.ensureVisible(find.text('Kepulauan Banda'));
+  await tester.tap(find.text('Kepulauan Banda'));
+  await tester.pumpAndSettle();
+}
+
+String _textOf(WidgetTester tester, String key) {
+  return tester.widget<Text>(find.byKey(Key(key))).data!;
+}
+
+Future<void> _pumpTimeCard(WidgetTester tester, DateTime initialTime) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        // Key unik supaya setiap pemanggilan membuat State baru (jam awal dibaca di initState).
+        body: SingleChildScrollView(
+          child: TimeConverterCard(key: UniqueKey(), initialTime: initialTime),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> _pumpBriefing(WidgetTester tester, Spot spot, DateTime now) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(body: BriefingTimeCard(spot: spot, now: now)),
+    ),
+  );
+  await tester.pumpAndSettle();
 }
