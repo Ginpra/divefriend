@@ -17,7 +17,7 @@ Uri mapsUri(GeoPoint point) {
 Uri directionsUri({String? origin, required String destination}) {
   return Uri.https('www.google.com', '/maps/dir/', {
     'api': '1',
-    if (origin != null) 'origin': origin,
+    'origin': ?origin,
     'destination': destination,
   });
 }

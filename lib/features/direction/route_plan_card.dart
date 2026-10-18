@@ -7,28 +7,8 @@ import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/seed/access_points.dart';
 import 'package:divefriend/services/map_launcher.dart';
 
-/// Pilihan titik awal rute. [query] kosong berarti "lokasi saya" (Google Maps memakai posisi HP).
-/// Hanya nama kota yang dikirim ke Google Maps, tanpa koordinat karangan.
-class RouteStart {
-  const RouteStart(this.label, this.query);
-
-  final String label;
-  final String? query;
-}
-
-const List<RouteStart> routeStarts = [
-  RouteStart('Lokasi saya', null),
-  RouteStart('Jakarta', 'Jakarta'),
-  RouteStart('Yogyakarta', 'Yogyakarta'),
-  RouteStart('Surabaya', 'Surabaya'),
-  RouteStart('Denpasar', 'Denpasar'),
-  RouteStart('Makassar', 'Makassar'),
-  RouteStart('Medan', 'Medan'),
-  RouteStart('Manado', 'Manado'),
-];
-
-/// Rencana perjalanan ke spot: pintu masuk terdekat, langkah sisa perjalanan, pilihan titik awal,
-/// dan tombol membuka rute di Google Maps. Rute Google Maps dihitung sampai pintu masuk, karena
+/// Rencana perjalanan ke spot: pintu masuk terdekat, langkah sisa perjalanan, dan tombol membuka
+/// rute di Google Maps. Rute selalu dimulai dari lokasi pengguna saat ini. Rute Google Maps dihitung sampai pintu masuk, karena
 /// titik pusat spot biasanya ada di laut dan tidak bisa dirutekan lewat jalan atau penyeberangan.
 class RoutePlanCard extends StatefulWidget {
   const RoutePlanCard({super.key, required this.spot, required this.maps});
@@ -41,21 +21,11 @@ class RoutePlanCard extends StatefulWidget {
 }
 
 class _RoutePlanCardState extends State<RoutePlanCard> {
-  int _startIndex = 0;
-
   AccessPoint? get _accessPoint => accessPointsBySpotId[widget.spot.id];
 
-  void _selectStart(int index) {
-    setState(() {
-      _startIndex = index;
-    });
-  }
-
   Future<void> _openRoute(AccessPoint accessPoint) async {
-    final opened = await widget.maps.openDirections(
-      origin: routeStarts[_startIndex].query,
-      destination: accessPoint.mapsQuery,
-    );
+    // origin sengaja kosong: Google Maps memakai lokasi HP sebagai titik awal.
+    final opened = await widget.maps.openDirections(destination: accessPoint.mapsQuery);
     _showFailureIfNeeded(opened);
   }
 
@@ -102,19 +72,6 @@ class _RoutePlanCardState extends State<RoutePlanCard> {
           textAlign: TextAlign.justify,
           style: const TextStyle(height: 1.4),
         ),
-        const Divider(height: 24),
-        const Text('Mulai dari', style: TextStyle(fontWeight: FontWeight.w600)),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (var i = 0; i < routeStarts.length; i++)
-              ChoiceChip(
-                label: Text(routeStarts[i].label),
-                selected: _startIndex == i,
-                onSelected: (_) => _selectStart(i),
-              ),
-          ],
-        ),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -132,9 +89,9 @@ class _RoutePlanCardState extends State<RoutePlanCard> {
           ),
         ),
         const Text(
-          'Google Maps menghitung rute darat dan penyeberangan yang ia kenal. Kalau titik awal dan pintu masuk '
-          'berbeda pulau, kamu perlu pesawat atau kapal dulu, jadi ikuti langkah di atas dan cek jadwalnya. '
-          'Dari pintu masuk ke spot, pakai operator selam atau kapal setempat.',
+          'Rute dimulai dari lokasimu saat ini. Google Maps menghitung rute darat dan penyeberangan yang ia kenal. '
+          'Kalau kamu berada di pulau yang berbeda dari pintu masuk, kamu perlu pesawat atau kapal dulu, jadi ikuti '
+          'langkah di atas dan cek jadwalnya. Dari pintu masuk ke spot, pakai operator selam atau kapal setempat.',
           textAlign: TextAlign.justify,
           style: TextStyle(fontSize: 11, height: 1.35),
         ),

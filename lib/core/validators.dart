@@ -17,3 +17,31 @@ String? validateNewPassword(String? value) {
   }
   return null;
 }
+
+/// Validator form Logbook: kedalaman maksimum (meter), lama di dasar (menit), dan catatan bebas.
+const int maxLogDepthMeters = 150;
+const int maxLogBottomTimeMinutes = 300;
+const int maxLogNotesLength = 500;
+
+String? validateDepthMeters(String? value) {
+  final depth = int.tryParse((value ?? '').trim());
+  if (depth == null || depth < 1 || depth > maxLogDepthMeters) {
+    return 'Isi angka bulat 1 sampai $maxLogDepthMeters';
+  }
+  return null;
+}
+
+String? validateBottomTimeMinutes(String? value) {
+  final minutes = int.tryParse((value ?? '').trim());
+  if (minutes == null || minutes < 1 || minutes > maxLogBottomTimeMinutes) {
+    return 'Isi angka bulat 1 sampai $maxLogBottomTimeMinutes';
+  }
+  return null;
+}
+
+String? validateLogNotes(String? value) {
+  if ((value ?? '').trim().length > maxLogNotesLength) {
+    return 'Maksimal $maxLogNotesLength karakter';
+  }
+  return null;
+}

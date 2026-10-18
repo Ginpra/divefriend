@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 /// Pintu tunggal ke database SQLite lokal.
 /// Versi 1: tabel users. Versi 2: tabel spots + meta. Versi 4: struktur tabel spots dirapikan.
+/// Versi 5: tabel logbook (catatan penyelaman dengan hash chain, tidak pernah dihapus saat upgrade).
 /// Tabel spots hanyalah salinan dari data seed, jadi saat strukturnya berubah
 /// tabelnya dibuat ulang dan datanya dimuat lagi otomatis.
 class AppDatabase {
@@ -10,7 +11,7 @@ class AppDatabase {
 
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 4;
+  static const int _version = 5;
 
   Database? _database;
 
@@ -24,6 +25,7 @@ class AppDatabase {
       onCreate: (db, version) async {
         await _createUsersTable(db);
         await _createSpotTables(db);
+        await _createLogbookTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -33,8 +35,32 @@ class AppDatabase {
           await db.execute('DROP TABLE IF EXISTS meta');
           await _createSpotTables(db);
         }
+        if (oldVersion < 5) {
+          await _createLogbookTable(db);
+        }
       },
     );
+  }
+
+  /// Satu baris = satu catatan penyelaman. Kunci utamanya (user_id, seq) menjaga nomor urut
+  /// tidak ganda. Isi kolom prev_hash dan hash membentuk rantai (lihat core/log_chain.dart).
+  static Future<void> _createLogbookTable(Database db) {
+    return db.execute('''
+      CREATE TABLE logbook (
+        user_id INTEGER NOT NULL,
+        seq INTEGER NOT NULL,
+        dive_date TEXT NOT NULL,
+        spot_id TEXT NOT NULL,
+        spot_name TEXT NOT NULL,
+        max_depth_m INTEGER NOT NULL,
+        bottom_time_min INTEGER NOT NULL,
+        notes TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        prev_hash TEXT NOT NULL,
+        hash TEXT NOT NULL,
+        PRIMARY KEY (user_id, seq)
+      )
+    ''');
   }
 
   static Future<void> _createUsersTable(Database db) {

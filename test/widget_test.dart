@@ -265,6 +265,18 @@ void main() {
 
     expect(find.textContaining('Mencari posisi GPS'), findsOneWidget);
   });
+
+  testWidgets('menu Logbook membuka layar logbook yang masih kosong', (tester) async {
+    await _pumpApp(tester);
+    await _login(tester, 'budi', 'password123');
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Logbook'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Logbook masih kosong'), findsOneWidget);
+  });
 }
 
 /// Login lalu buka Detail Spot Kepulauan Banda (WIT, harga simulasi 3.000.000 rupiah).

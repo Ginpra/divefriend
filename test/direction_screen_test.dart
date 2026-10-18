@@ -144,7 +144,7 @@ void main() {
     expect(find.textContaining('Pelabuhan Tulehu'), findsOneWidget);
   });
 
-  testWidgets('tombol rute tanpa memilih titik awal memakai lokasi saya (origin kosong)', (tester) async {
+  testWidgets('tombol rute selalu dimulai dari lokasi saya (origin kosong)', (tester) async {
     final maps = FakeMapLauncher();
     await _pumpDirection(tester, location: FakeLocationService(points: [_northOfBanda]), maps: maps);
 
@@ -152,21 +152,6 @@ void main() {
 
     expect(maps.routes.length, 1);
     expect(maps.routes.single.origin, isNull);
-    expect(maps.routes.single.destination, 'Bandara Pattimura, Ambon');
-  });
-
-  testWidgets('memilih titik awal Jakarta mengirim origin Jakarta', (tester) async {
-    final maps = FakeMapLauncher();
-    await _pumpDirection(tester, location: FakeLocationService(points: [_northOfBanda]), maps: maps);
-
-    await tester.scrollUntilVisible(find.widgetWithText(ChoiceChip, 'Jakarta'), 200);
-    await tester.ensureVisible(find.widgetWithText(ChoiceChip, 'Jakarta'));
-    await tester.pump();
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Jakarta'));
-    await _pumpFrames(tester);
-    await _tapRouteCardText(tester, 'Buka rute di Google Maps');
-
-    expect(maps.routes.single.origin, 'Jakarta');
     expect(maps.routes.single.destination, 'Bandara Pattimura, Ambon');
   });
 

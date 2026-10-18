@@ -2,6 +2,7 @@ import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
 import 'package:divefriend/services/location_service.dart';
+import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
@@ -17,6 +18,7 @@ class AppServices {
     required this.location,
     required this.sensors,
     required this.maps,
+    required this.logbook,
   });
 
   final SpotRepository spots;
@@ -26,4 +28,5 @@ class AppServices {
   final LocationService location;
   final SensorService sensors;
   final MapLauncher maps;
+  final LogbookService logbook;
 }

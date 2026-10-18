@@ -2,8 +2,10 @@ import 'package:divefriend/data/models/app_user.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/data/models/exchange_rates.dart';
 import 'package:divefriend/data/models/geo_point.dart';
+import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
+import 'package:divefriend/data/repositories/logbook_repository.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/data/repositories/user_repository.dart';
 import 'package:divefriend/services/api_failure.dart';
@@ -11,6 +13,7 @@ import 'package:divefriend/services/biometric_service.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
 import 'package:divefriend/services/location_service.dart';
+import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
@@ -212,6 +215,7 @@ AppServices buildTestServices({
   LocationService? location,
   SensorService? sensors,
   MapLauncher? maps,
+  LogbookService? logbook,
   List<Spot>? spots,
 }) {
   return AppServices(
@@ -222,5 +226,41 @@ AppServices buildTestServices({
     location: location ?? FakeLocationService(),
     sensors: sensors ?? FakeSensorService(),
     maps: maps ?? FakeMapLauncher(),
+    logbook: logbook ?? LogbookService(InMemoryLogbookRepository()),
   );
+}
+
+/// Penyimpanan logbook di memori, dipakai tes agar tidak butuh SQLite asli.
+class InMemoryLogbookRepository implements LogbookRepository {
+  final List<LogEntry> _entries = [];
+
+  @override
+  Future<List<LogEntry>> entriesFor(int userId) async {
+    final mine = _entries.where((entry) => entry.userId == userId).toList();
+    mine.sort((a, b) => a.seq.compareTo(b.seq));
+    return mine;
+  }
+
+  @override
+  Future<void> insert(LogEntry entry) async {
+    _entries.add(entry);
+  }
+
+  @override
+  Future<void> rewriteNotesWithoutRehash(int userId, int seq, String notes) async {
+    final index = _entries.indexWhere((entry) => entry.userId == userId && entry.seq == seq);
+    if (index == -1) return;
+    _entries[index] = _entries[index].withNotes(notes);
+  }
+
+  /// Hanya untuk tes: mengganti isi satu catatan mentah-mentah (misalnya memutus rantai).
+  void replaceEntry(int userId, int seq, LogEntry replacement) {
+    final index = _entries.indexWhere((entry) => entry.userId == userId && entry.seq == seq);
+    _entries[index] = replacement;
+  }
+
+  /// Hanya untuk tes: menghapus satu catatan mentah-mentah.
+  void removeEntry(int userId, int seq) {
+    _entries.removeWhere((entry) => entry.userId == userId && entry.seq == seq);
+  }
 }
