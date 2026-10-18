@@ -11,7 +11,10 @@ import 'package:divefriend/features/home/home_screen.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/biometric_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/location_service.dart';
+import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
+import 'package:divefriend/services/sensor_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +30,9 @@ Future<void> main() async {
     auth: AuthService(SqliteUserRepository(AppDatabase.instance), BiometricService()),
     rates: FrankfurterRateService(httpClient),
     marine: OpenMeteoMarineService(httpClient),
+    location: GeolocatorLocationService(),
+    sensors: DeviceSensorService(),
+    maps: UrlMapLauncher(),
   );
 
   // Kalau session masih ada, langsung ke Beranda tanpa login ulang.

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:divefriend/app_services.dart';
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/seed/spots_seed.dart';
 import 'package:divefriend/features/converter/time_converter_card.dart';
-import 'package:divefriend/features/spot/briefing_time_card.dart';
+import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/main.dart';
 import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/auth_service.dart';
@@ -29,11 +28,11 @@ Future<void> _pumpApp(
   await tester.runAsync(
     () => auth.register(name: 'Budi', username: 'budi', password: 'password123'),
   );
-  final services = AppServices(
-    spots: InMemorySpotRepository(spotsSeed),
+  final services = buildTestServices(
     auth: auth,
-    rates: rates ?? FakeRateService(),
-    marine: marine ?? FakeMarineService(),
+    rates: rates,
+    marine: marine,
+    spots: spotsSeed,
   );
   await tester.pumpWidget(DiveFriendApp(services: services));
   await tester.pumpAndSettle();
@@ -94,7 +93,7 @@ void main() {
     expect(find.text('Wakatobi'), findsNothing);
   });
 
-  testWidgets('Detail Spot menampilkan gelombang, harga simulasi, dan jam briefing', (tester) async {
+  testWidgets('Detail Spot menampilkan gelombang, harga simulasi, dan jam kumpul', (tester) async {
     await _pumpApp(tester);
     await _openBandaDetail(tester);
 
@@ -108,7 +107,7 @@ void main() {
     expect(find.text('EUR 147,85'), findsOneWidget);
     expect(find.text('SGD 212,84'), findsOneWidget);
 
-    expect(find.text('Jam briefing'), findsOneWidget);
+    expect(find.text('Jam kumpul'), findsOneWidget);
     expect(find.text('07.30 WIT'), findsOneWidget);
   });
 
@@ -205,18 +204,18 @@ void main() {
     expect(_textOf(tester, 'time_london'), '04.00');
   });
 
-  testWidgets('jam briefing: London bergeser ke hari sebelumnya saat GMT', (tester) async {
+  testWidgets('jam kumpul: London bergeser ke hari sebelumnya saat GMT', (tester) async {
     final wakatobi = spotsSeed.firstWhere((spot) => spot.id == 'wakatobi');
 
-    await _pumpBriefing(tester, wakatobi, DateTime.utc(2026, 10, 18, 3));
+    await _pumpGathering(tester, wakatobi, DateTime.utc(2026, 10, 18, 3));
     expect(find.text('07.30 WITA'), findsOneWidget);
     expect(find.text('00.30 BST'), findsOneWidget);
 
-    await _pumpBriefing(tester, wakatobi, DateTime.utc(2026, 10, 27, 3));
+    await _pumpGathering(tester, wakatobi, DateTime.utc(2026, 10, 27, 3));
     expect(find.text('23.30 GMT (hari sebelumnya)'), findsOneWidget);
   });
 
-  testWidgets('jam briefing tanpa zona waktu spot menampilkan tidak tersedia', (tester) async {
+  testWidgets('jam kumpul tanpa zona waktu spot menampilkan tidak tersedia', (tester) async {
     const spot = Spot(
       id: 'uji',
       name: 'Spot Uji',
@@ -228,12 +227,43 @@ void main() {
       summary: 'uji',
       sources: ['uji'],
     );
-    await _pumpBriefing(tester, spot, DateTime.utc(2026, 10, 18, 3));
+    await _pumpGathering(tester, spot, DateTime.utc(2026, 10, 18, 3));
 
     expect(
-      find.text('Jam briefing tidak tersedia karena zona waktu spot belum diketahui.'),
+      find.text('Jam kumpul tidak tersedia karena zona waktu spot belum diketahui.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('menu Arah ke Spot: pilih spot lalu layar arah terbuka', (tester) async {
+    await _pumpApp(tester);
+    await _login(tester, 'budi', 'password123');
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Arah ke Spot'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pilih spot tujuan'), findsOneWidget);
+    await tester.tap(find.text('Kepulauan Banda'));
+    await _pumpFrames(tester);
+
+    expect(find.textContaining('Mencari posisi GPS'), findsOneWidget);
+  });
+
+  testWidgets('tombol Arah ke Spot di Detail Spot membuka layar arah', (tester) async {
+    // Layar dibuat sangat tinggi supaya seluruh Detail Spot terlihat tanpa perlu scroll.
+    tester.view.physicalSize = const Size(800, 3600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await _pumpApp(tester);
+    await _openBandaDetail(tester);
+
+    await tester.tap(find.text('Arah ke Spot'));
+    await _pumpFrames(tester);
+
+    expect(find.textContaining('Mencari posisi GPS'), findsOneWidget);
   });
 }
 
@@ -243,6 +273,13 @@ Future<void> _openBandaDetail(WidgetTester tester) async {
   await tester.ensureVisible(find.text('Kepulauan Banda'));
   await tester.tap(find.text('Kepulauan Banda'));
   await tester.pumpAndSettle();
+}
+
+/// Pengganti pumpAndSettle untuk layar yang menampilkan spinner tanpa henti (layar Arah ke Spot saat mencari GPS).
+Future<void> _pumpFrames(WidgetTester tester) async {
+  for (var i = 0; i < 5; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
 
 String _textOf(WidgetTester tester, String key) {
@@ -263,10 +300,10 @@ Future<void> _pumpTimeCard(WidgetTester tester, DateTime initialTime) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _pumpBriefing(WidgetTester tester, Spot spot, DateTime now) async {
+Future<void> _pumpGathering(WidgetTester tester, Spot spot, DateTime now) async {
   await tester.pumpWidget(
     MaterialApp(
-      home: Scaffold(body: BriefingTimeCard(spot: spot, now: now)),
+      home: Scaffold(body: GatheringTimeCard(spot: spot, now: now)),
     ),
   );
   await tester.pumpAndSettle();

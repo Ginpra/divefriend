@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/features/converter/converter_screen.dart';
+import 'package:divefriend/features/direction/spot_picker_screen.dart';
 import 'package:divefriend/features/auth/login_screen.dart';
 import 'package:divefriend/features/profile/feedback_screen.dart';
 import 'package:divefriend/features/profile/profile_screen.dart';
@@ -81,6 +82,11 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.home),
             title: const Text('Beranda'),
             onTap: () => Navigator.of(context).pop(),
+          ),
+          ListTile(
+            leading: const Icon(Icons.explore),
+            title: const Text('Arah ke Spot'),
+            onTap: () => _openPage(context, SpotPickerScreen(services: services)),
           ),
           ListTile(
             leading: const Icon(Icons.currency_exchange),

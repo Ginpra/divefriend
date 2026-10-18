@@ -1,13 +1,19 @@
 import 'package:divefriend/data/models/app_user.dart';
+import 'package:divefriend/app_services.dart';
 import 'package:divefriend/data/models/exchange_rates.dart';
+import 'package:divefriend/data/models/geo_point.dart';
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/data/repositories/user_repository.dart';
 import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/biometric_service.dart';
+import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/location_service.dart';
+import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
+import 'package:divefriend/services/sensor_service.dart';
 
 /// Penyimpanan pengguna di memori, dipakai tes agar tidak butuh SQLite asli.
 class InMemoryUserRepository implements UserRepository {
@@ -137,4 +143,84 @@ class FakeMarineService implements MarineService {
     if (error != null) throw error;
     return conditions;
   }
+}
+
+/// Layanan posisi palsu: mengirim [points] satu per satu, atau langsung error kalau [error] diisi.
+class FakeLocationService implements LocationService {
+  FakeLocationService({this.points = const [], this.error});
+
+  final List<GeoPoint> points;
+  final Object? error;
+  final List<LocationFailureKind> openedSettings = [];
+
+  @override
+  Stream<GeoPoint> positions() {
+    final failure = error;
+    if (failure != null) return Stream<GeoPoint>.error(failure);
+    return Stream<GeoPoint>.fromIterable(points);
+  }
+
+  @override
+  Future<void> openSettings(LocationFailureKind kind) async {
+    openedSettings.add(kind);
+  }
+}
+
+/// Sensor palsu: mengirim [headingValues] satu per satu, atau error kalau [hasCompass] false.
+class FakeSensorService implements SensorService {
+  FakeSensorService({this.headingValues = const [], this.hasCompass = true});
+
+  final List<double> headingValues;
+  final bool hasCompass;
+
+  @override
+  Stream<double> headings() {
+    if (!hasCompass) return Stream<double>.error(StateError('tidak ada sensor'));
+    return Stream<double>.fromIterable(headingValues);
+  }
+
+  @override
+  Stream<void> shakes() => const Stream<void>.empty();
+}
+
+/// Pembuka peta palsu: mencatat titik dan rute yang diminta dibuka.
+class FakeMapLauncher implements MapLauncher {
+  FakeMapLauncher({this.succeeds = true});
+
+  final bool succeeds;
+  final List<GeoPoint> opened = [];
+  final List<({String? origin, String destination})> routes = [];
+
+  @override
+  Future<bool> open(GeoPoint point) async {
+    opened.add(point);
+    return succeeds;
+  }
+
+  @override
+  Future<bool> openDirections({String? origin, required String destination}) async {
+    routes.add((origin: origin, destination: destination));
+    return succeeds;
+  }
+}
+
+/// Semua layanan palsu sekaligus, supaya tes layar cukup menulis bagian yang berbeda.
+AppServices buildTestServices({
+  required AuthService auth,
+  ExchangeRateService? rates,
+  MarineService? marine,
+  LocationService? location,
+  SensorService? sensors,
+  MapLauncher? maps,
+  List<Spot>? spots,
+}) {
+  return AppServices(
+    spots: InMemorySpotRepository(spots ?? const []),
+    auth: auth,
+    rates: rates ?? FakeRateService(),
+    marine: marine ?? FakeMarineService(),
+    location: location ?? FakeLocationService(),
+    sensors: sensors ?? FakeSensorService(),
+    maps: maps ?? FakeMapLauncher(),
+  );
 }

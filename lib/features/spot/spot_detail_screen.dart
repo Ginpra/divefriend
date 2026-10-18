@@ -6,12 +6,13 @@ import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/level_badge.dart';
 import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
+import 'package:divefriend/features/direction/direction_screen.dart';
 import 'package:divefriend/features/shared/placeholder_screen.dart';
-import 'package:divefriend/features/spot/briefing_time_card.dart';
+import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/features/spot/price_card.dart';
 import 'package:divefriend/features/spot/sea_conditions_card.dart';
 
-/// Detail spot. Gelombang (Open-Meteo), harga 4 mata uang (Frankfurter), dan jam briefing
+/// Detail spot. Gelombang (Open-Meteo), harga 4 mata uang (Frankfurter), dan jam kumpul
 /// (hitung sendiri) masing-masing punya kartu sendiri supaya layar ini tetap pendek.
 class SpotDetailScreen extends StatelessWidget {
   const SpotDetailScreen({super.key, required this.spot, required this.services});
@@ -41,6 +42,14 @@ class SpotDetailScreen extends StatelessWidget {
       spot.biota.isEmpty ? _unavailable : spot.biota.join(', ');
 
   String get _typesText => spot.types.map((type) => type.label).join(', ');
+
+  void _openDirection(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => DirectionScreen(spot: spot, services: services),
+      ),
+    );
+  }
 
   void _openPlaceholder(BuildContext context, String title, int stage) {
     Navigator.of(context).push(
@@ -135,13 +144,12 @@ class SpotDetailScreen extends StatelessWidget {
                 const Divider(height: 32),
                 SeaConditionsCard(spot: spot, marine: services.marine),
                 PriceCard(spot: spot, rates: services.rates),
-                BriefingTimeCard(spot: spot),
+                GatheringTimeCard(spot: spot),
                 const SizedBox(height: 2),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () =>
-                        _openPlaceholder(context, 'Arah ke Spot', 5),
+                    onPressed: () => _openDirection(context),
                     child: const Text('Arah ke Spot'),
                   ),
                 ),
