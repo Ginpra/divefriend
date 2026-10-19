@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
 import 'package:divefriend/core/widgets/section_card.dart';
+import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/services/logbook_service.dart';
 
-/// Form catatan penyelaman baru. Setelah disimpan, catatan tidak bisa diubah atau dihapus
-/// karena sudah menjadi bagian dari rantai hash. Menutup layar dengan hasil true kalau tersimpan.
+/// Form catatan penyelaman. Kalau [existing] kosong berarti catatan baru, kalau diisi berarti
+/// mengubah catatan itu. Menutup layar dengan hasil true kalau tersimpan.
 class LogEntryFormScreen extends StatefulWidget {
-  const LogEntryFormScreen({super.key, required this.services});
+  const LogEntryFormScreen({super.key, required this.services, this.existing});
 
   final AppServices services;
+  final LogEntry? existing;
 
   @override
   State<LogEntryFormScreen> createState() => _LogEntryFormScreenState();
@@ -19,13 +21,26 @@ class LogEntryFormScreen extends StatefulWidget {
 
 class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _depthController = TextEditingController();
-  final _timeController = TextEditingController();
-  final _notesController = TextEditingController();
-  DateTime _date = DateTime.now();
-  Spot? _spot;
+  late final TextEditingController _depthController;
+  late final TextEditingController _timeController;
+  late final TextEditingController _notesController;
+  late DateTime _date;
+  String? _spotId;
+  String? _spotName;
   String? _spotError;
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    _depthController = TextEditingController(text: existing?.maxDepthM.toString() ?? '');
+    _timeController = TextEditingController(text: existing?.bottomTimeMin.toString() ?? '');
+    _notesController = TextEditingController(text: existing?.notes ?? '');
+    _date = existing == null ? DateTime.now() : (DateTime.tryParse(existing.diveDate) ?? DateTime.now());
+    _spotId = existing?.spotId;
+    _spotName = existing?.spotName;
+  }
 
   @override
   void dispose() {
@@ -66,34 +81,61 @@ class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
     );
     if (picked == null) return;
     setState(() {
-      _spot = picked;
+      _spotId = picked.id;
+      _spotName = picked.name;
       _spotError = null;
     });
   }
 
   Future<void> _save() async {
     final formValid = _formKey.currentState!.validate();
-    final spot = _spot;
-    if (spot == null) {
+    final spotId = _spotId;
+    final spotName = _spotName;
+    if (spotId == null || spotName == null) {
       setState(() {
         _spotError = 'Pilih spot selam dulu';
       });
     }
     final user = widget.services.auth.currentUser;
-    if (!formValid || spot == null || user == null) return;
+    if (!formValid || spotId == null || spotName == null || user == null) return;
 
     setState(() {
       _saving = true;
     });
-    await widget.services.logbook.addEntry(
-      userId: user.id,
-      diveDate: _date,
-      spotId: spot.id,
-      spotName: spot.name,
-      maxDepthM: int.parse(_depthController.text.trim()),
-      bottomTimeMin: int.parse(_timeController.text.trim()),
-      notes: _notesController.text,
-    );
+    final depth = int.parse(_depthController.text.trim());
+    final bottomTime = int.parse(_timeController.text.trim());
+    try {
+      final existing = widget.existing;
+      if (existing == null) {
+        await widget.services.logbook.addEntry(
+          userId: user.id,
+          diveDate: _date,
+          spotId: spotId,
+          spotName: spotName,
+          maxDepthM: depth,
+          bottomTimeMin: bottomTime,
+          notes: _notesController.text,
+        );
+      } else {
+        await widget.services.logbook.updateEntry(
+          userId: user.id,
+          seq: existing.seq,
+          diveDate: _date,
+          spotId: spotId,
+          spotName: spotName,
+          maxDepthM: depth,
+          bottomTimeMin: bottomTime,
+          notes: _notesController.text,
+        );
+      }
+    } on LogbookException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+      return;
+    }
     if (!mounted) return;
     Navigator.of(context).pop(true);
   }
@@ -101,20 +143,23 @@ class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
   @override
   Widget build(BuildContext context) {
     final spotError = _spotError;
+    final existing = widget.existing;
     return Scaffold(
-      appBar: AppBar(title: const Text('Catatan penyelaman baru')),
+      appBar: AppBar(
+        title: Text(existing == null ? 'Catatan penyelaman baru' : 'Ubah catatan #${existing.seq}'),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             const SectionCard(
-              icon: Icons.lock_outline,
-              title: 'Catatan tidak bisa diubah',
+              icon: Icons.link,
+              title: 'Rantai hash',
               child: Text(
-                'Setiap catatan menyimpan hash catatan sebelumnya, sehingga seluruh logbook membentuk rantai. '
-                'Karena itu catatan yang sudah disimpan tidak bisa diubah atau dihapus. Periksa isinya dulu '
-                'sebelum menyimpan.',
+                'Catatan boleh diubah atau dihapus kapan saja. Setiap perubahan dari aplikasi otomatis '
+                'menyegel ulang rantai hash, jadi rantai hanya dinyatakan rusak kalau data diubah di luar '
+                'aplikasi. Penyelaman diurutkan menurut tanggal, jadi nomornya bisa bergeser.',
                 textAlign: TextAlign.justify,
                 style: TextStyle(fontSize: 12, height: 1.4),
               ),
@@ -130,7 +175,7 @@ class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
               key: const Key('pick_spot'),
               onPressed: _pickSpot,
               icon: const Icon(Icons.place_outlined),
-              label: Text(_spot?.name ?? 'Pilih spot selam'),
+              label: Text(_spotName ?? 'Pilih spot selam'),
             ),
             if (spotError != null)
               Padding(
@@ -171,7 +216,7 @@ class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
             FilledButton(
               key: const Key('save_entry'),
               onPressed: _saving ? null : _save,
-              child: const Text('Simpan catatan'),
+              child: Text(existing == null ? 'Simpan catatan' : 'Simpan perubahan'),
             ),
           ],
         ),

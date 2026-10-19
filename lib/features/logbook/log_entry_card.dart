@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 
 import 'package:divefriend/core/app_theme.dart';
+import 'package:divefriend/core/time_zones.dart';
 import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/services/logbook_service.dart';
 
 /// Satu halaman di logbook. [isBroken] menandai catatan yang gagal dicek (garis merah).
+/// [onEdit] dan [onDelete] menampilkan tombol Ubah dan Hapus kalau diisi.
 class LogEntryCard extends StatelessWidget {
-  const LogEntryCard({super.key, required this.entry, this.isBroken = false});
+  const LogEntryCard({
+    super.key,
+    required this.entry,
+    this.isBroken = false,
+    this.onEdit,
+    this.onDelete,
+  });
 
   final LogEntry entry;
   final bool isBroken;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  /// "Diubah 18-10-2026 14.05" dalam waktu HP, atau null kalau catatan belum pernah diubah.
+  static String? updatedLabel(String? updatedAtIso) {
+    if (updatedAtIso == null) return null;
+    final parsed = DateTime.tryParse(updatedAtIso);
+    if (parsed == null) return null;
+    final local = parsed.toLocal();
+    final date = '${local.day.toString().padLeft(2, '0')}-${local.month.toString().padLeft(2, '0')}-${local.year}';
+    return 'Diubah $date ${formatClock(local)}';
+  }
 
   /// Hash panjang diringkas: delapan karakter awal dan empat karakter akhir.
   static String shortHash(String hash) {
@@ -51,6 +71,7 @@ class LogEntryCard extends StatelessWidget {
   }
 
   Widget _buildContent() {
+    final edited = updatedLabel(entry.updatedAt);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -94,6 +115,32 @@ class LogEntryCard extends StatelessWidget {
               : 'Terhubung ke #${entry.seq - 1} (${shortHash(entry.prevHash)})',
           style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
         ),
+        if (edited != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(edited, key: const Key('updated_label'), style: const TextStyle(fontSize: 11)),
+          ),
+        if (onEdit != null || onDelete != null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (onEdit != null)
+                TextButton.icon(
+                  key: Key('edit_${entry.seq}'),
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text('Ubah'),
+                ),
+              if (onDelete != null)
+                TextButton.icon(
+                  key: Key('delete_${entry.seq}'),
+                  onPressed: onDelete,
+                  style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('Hapus'),
+                ),
+            ],
+          ),
         if (isBroken)
           Padding(
             padding: const EdgeInsets.only(top: 6),

@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 /// Pintu tunggal ke database SQLite lokal.
 /// Versi 1: tabel users. Versi 2: tabel spots + meta. Versi 4: struktur tabel spots dirapikan.
 /// Versi 5: tabel logbook (catatan penyelaman dengan hash chain, tidak pernah dihapus saat upgrade).
+/// Versi 6: kolom updated_at di logbook (waktu catatan terakhir diubah).
 /// Tabel spots hanyalah salinan dari data seed, jadi saat strukturnya berubah
 /// tabelnya dibuat ulang dan datanya dimuat lagi otomatis.
 class AppDatabase {
@@ -11,7 +12,7 @@ class AppDatabase {
 
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 5;
+  static const int _version = 6;
 
   Database? _database;
 
@@ -37,6 +38,8 @@ class AppDatabase {
         }
         if (oldVersion < 5) {
           await _createLogbookTable(db);
+        } else if (oldVersion < 6) {
+          await db.execute('ALTER TABLE logbook ADD COLUMN updated_at TEXT');
         }
       },
     );
@@ -58,6 +61,7 @@ class AppDatabase {
         created_at TEXT NOT NULL,
         prev_hash TEXT NOT NULL,
         hash TEXT NOT NULL,
+        updated_at TEXT,
         PRIMARY KEY (user_id, seq)
       )
     ''');

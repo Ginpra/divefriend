@@ -10,7 +10,11 @@ final String genesisHash = '0' * 64;
 /// Hash SHA-256 sebuah catatan. Bahannya semua isi catatan ditambah hash catatan sebelumnya,
 /// ditulis sebagai daftar JSON supaya batas antar bagian selalu jelas (tidak ambigu walau catatan
 /// berisi karakter aneh). Mengubah satu huruf saja akan menghasilkan hash yang sama sekali berbeda.
+///
+/// Waktu perubahan ([LogEntry.updatedAt]) ikut dihash hanya kalau ada. Catatan yang belum pernah diubah
+/// memakai daftar yang sama persis seperti sebelum fitur ubah ada, jadi hash catatan lama tetap berlaku.
 String computeEntryHash(LogEntry entry) {
+  final updatedAt = entry.updatedAt;
   final canonical = jsonEncode([
     entry.prevHash,
     entry.userId,
@@ -22,6 +26,7 @@ String computeEntryHash(LogEntry entry) {
     entry.bottomTimeMin,
     entry.notes,
     entry.createdAt,
+    ?updatedAt,
   ]);
   return sha256.convert(utf8.encode(canonical)).toString();
 }

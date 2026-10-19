@@ -85,6 +85,13 @@ void main() {
       );
     });
 
+    test('catatan tanpa updatedAt memakai daftar lama, dengan updatedAt hash-nya berubah', () {
+      final plain = _entry(seq: 1, prevHash: genesisHash);
+      final edited = plain.copyWith(updatedAt: '2026-10-19T05:00:00.000Z');
+      expect(computeEntryHash(plain), plain.hash);
+      expect(computeEntryHash(edited), isNot(plain.hash));
+    });
+
     test('mengubah satu huruf menghasilkan hash yang berbeda', () {
       final original = _entry(seq: 1, prevHash: genesisHash, notes: 'Arus tenang');
       final changed = _entry(seq: 1, prevHash: genesisHash, notes: 'Arus tenanG');

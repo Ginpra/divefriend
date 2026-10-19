@@ -36,6 +36,17 @@ class SqliteSpotRepository implements SpotRepository {
   }
 
   @override
+  Future<void> replaceAll(List<Spot> spots) async {
+    final db = await _appDatabase.database;
+    await db.transaction((txn) async {
+      await txn.delete('spots');
+      for (final spot in spots) {
+        await txn.insert('spots', _toRow(spot));
+      }
+    });
+  }
+
+  @override
   Future<List<Spot>> getSpots({String query = '', SpotLevel? level}) async {
     final db = await _appDatabase.database;
     final conditions = <String>[];

@@ -7,9 +7,12 @@ import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/home/spot_card.dart';
 import 'package:divefriend/features/navigation/app_drawer.dart';
 import 'package:divefriend/features/spot/spot_detail_screen.dart';
+import 'package:divefriend/services/spot_sync_service.dart';
 
 /// Beranda: daftar spot + pencarian + filter level.
-/// Layar ini hanya bicara ke SpotRepository, tidak tahu data berasal dari mana.
+/// Layar ini hanya bicara ke SpotRepository, tidak tahu data berasal dari mana. Saat dibuka pertama
+/// kali ia menyinkronkan data spot dari Supabase (satu arah, online ke lokal), dan tombol refresh
+/// di bar atas menjalankannya lagi.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.services});
 
@@ -23,11 +26,38 @@ class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
   SpotLevel? _selectedLevel;
   late Future<List<Spot>> _spotsFuture;
+  SyncResult? _syncResult;
+  bool _syncing = false;
 
   @override
   void initState() {
     super.initState();
     _spotsFuture = _fetchSpots();
+    // Sinkronisasi otomatis hanya sekali per pembukaan aplikasi, kalau sudah pernah hasilnya dipakai ulang.
+    final previous = widget.services.sync.lastResult;
+    if (previous == null) {
+      _syncing = true;
+      _runSync();
+    } else {
+      _syncResult = previous;
+    }
+  }
+
+  Future<void> _runSync() async {
+    final result = await widget.services.sync.sync();
+    if (!mounted) return;
+    setState(() {
+      _syncing = false;
+      _syncResult = result;
+      if (result.isSuccess) _spotsFuture = _fetchSpots();
+    });
+  }
+
+  void _syncAgain() {
+    setState(() {
+      _syncing = true;
+    });
+    _runSync();
   }
 
   @override
@@ -67,7 +97,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('DiveFriend')),
+      appBar: AppBar(
+        title: const Text('DiveFriend'),
+        actions: [
+          IconButton(
+            tooltip: 'Sinkronkan data spot',
+            onPressed: _syncing ? null : _syncAgain,
+            icon: const Icon(Icons.sync),
+          ),
+        ],
+      ),
       drawer: AppDrawer(services: widget.services),
       body: Column(
         children: [
@@ -92,6 +131,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 for (final level in SpotLevel.values)
                   _buildChip(label: level.label, level: level),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _syncing ? 'Menyinkronkan data spot...' : (_syncResult?.message ?? ''),
+                key: const Key('sync_status'),
+                style: const TextStyle(fontSize: 11),
+              ),
             ),
           ),
           Expanded(

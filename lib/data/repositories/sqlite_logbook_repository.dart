@@ -20,9 +20,14 @@ class SqliteLogbookRepository implements LogbookRepository {
   }
 
   @override
-  Future<void> insert(LogEntry entry) async {
+  Future<void> replaceAll(int userId, List<LogEntry> entries) async {
     final db = await _appDatabase.database;
-    await db.insert('logbook', entry.toMap());
+    await db.transaction((txn) async {
+      await txn.delete('logbook', where: 'user_id = ?', whereArgs: [userId]);
+      for (final entry in entries) {
+        await txn.insert('logbook', entry.toMap());
+      }
+    });
   }
 
   @override

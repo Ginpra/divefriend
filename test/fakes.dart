@@ -5,6 +5,7 @@ import 'package:divefriend/data/models/geo_point.dart';
 import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
+import 'package:divefriend/data/remote/spot_remote_source.dart';
 import 'package:divefriend/data/repositories/logbook_repository.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/data/repositories/user_repository.dart';
@@ -17,6 +18,7 @@ import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
+import 'package:divefriend/services/spot_sync_service.dart';
 
 /// Penyimpanan pengguna di memori, dipakai tes agar tidak butuh SQLite asli.
 class InMemoryUserRepository implements UserRepository {
@@ -68,7 +70,12 @@ class InMemorySpotRepository implements SpotRepository {
   InMemorySpotRepository(List<Spot> spots)
       : _spots = [...spots]..sort((a, b) => a.name.compareTo(b.name));
 
-  final List<Spot> _spots;
+  List<Spot> _spots;
+
+  @override
+  Future<void> replaceAll(List<Spot> spots) async {
+    _spots = [...spots]..sort((a, b) => a.name.compareTo(b.name));
+  }
 
   @override
   Future<List<Spot>> getSpots({String query = '', SpotLevel? level}) async {
@@ -216,10 +223,12 @@ AppServices buildTestServices({
   SensorService? sensors,
   MapLauncher? maps,
   LogbookService? logbook,
+  SpotRemoteSource? spotRemote,
   List<Spot>? spots,
 }) {
+  final spotRepository = InMemorySpotRepository(spots ?? const []);
   return AppServices(
-    spots: InMemorySpotRepository(spots ?? const []),
+    spots: spotRepository,
     auth: auth,
     rates: rates ?? FakeRateService(),
     marine: marine ?? FakeMarineService(),
@@ -227,6 +236,7 @@ AppServices buildTestServices({
     sensors: sensors ?? FakeSensorService(),
     maps: maps ?? FakeMapLauncher(),
     logbook: logbook ?? LogbookService(InMemoryLogbookRepository()),
+    sync: SpotSyncService(remote: spotRemote, local: spotRepository),
   );
 }
 
@@ -242,8 +252,9 @@ class InMemoryLogbookRepository implements LogbookRepository {
   }
 
   @override
-  Future<void> insert(LogEntry entry) async {
-    _entries.add(entry);
+  Future<void> replaceAll(int userId, List<LogEntry> entries) async {
+    _entries.removeWhere((entry) => entry.userId == userId);
+    _entries.addAll(entries);
   }
 
   @override
@@ -253,14 +264,31 @@ class InMemoryLogbookRepository implements LogbookRepository {
     _entries[index] = _entries[index].withNotes(notes);
   }
 
-  /// Hanya untuk tes: mengganti isi satu catatan mentah-mentah (misalnya memutus rantai).
+  /// Hanya untuk tes: mengganti satu catatan mentah-mentah (misalnya memutus rantai).
   void replaceEntry(int userId, int seq, LogEntry replacement) {
     final index = _entries.indexWhere((entry) => entry.userId == userId && entry.seq == seq);
     _entries[index] = replacement;
   }
 
-  /// Hanya untuk tes: menghapus satu catatan mentah-mentah.
+  /// Hanya untuk tes: menghapus satu catatan mentah-mentah, meniru penghapusan langsung di database.
   void removeEntry(int userId, int seq) {
     _entries.removeWhere((entry) => entry.userId == userId && entry.seq == seq);
+  }
+}
+
+/// Sumber spot online palsu: memberi [spots], atau melempar [failure] kalau diisi.
+class FakeSpotRemoteSource implements SpotRemoteSource {
+  FakeSpotRemoteSource({this.spots = const [], this.failure});
+
+  final List<Spot> spots;
+  final ApiFailure? failure;
+  int calls = 0;
+
+  @override
+  Future<List<Spot>> fetchSpots() async {
+    calls++;
+    final error = failure;
+    if (error != null) throw error;
+    return spots;
   }
 }

@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/log_chain.dart';
+import 'package:divefriend/core/log_stats.dart';
 import 'package:divefriend/core/widgets/section_card.dart';
 import 'package:divefriend/core/widgets/state_message.dart';
 import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/features/logbook/log_entry_card.dart';
 import 'package:divefriend/features/logbook/log_entry_form_screen.dart';
+import 'package:divefriend/services/logbook_service.dart';
 
-/// Logbook penyelaman seperti buku catatan. Catatan terbaru di atas, tombol Cek Integritas
-/// memeriksa seluruh rantai hash, dan catatan baru hanya bisa ditambah (tidak bisa diubah atau dihapus).
+/// Logbook penyelaman seperti buku catatan dengan CRUD lengkap: lihat daftar, tambah, ubah, dan hapus.
+/// Catatan terbaru di atas, ringkasan angka di bagian atas, dan tombol Cek Integritas memeriksa rantai hash.
 class LogbookScreen extends StatefulWidget {
   const LogbookScreen({super.key, required this.services});
 
@@ -44,13 +46,76 @@ class _LogbookScreenState extends State<LogbookScreen> {
     });
   }
 
-  Future<void> _addEntry() async {
-    final added = await Navigator.of(context).push<bool>(
+  Future<void> _openForm({LogEntry? existing}) async {
+    final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
-        builder: (_) => LogEntryFormScreen(services: widget.services),
+        builder: (_) => LogEntryFormScreen(services: widget.services, existing: existing),
       ),
     );
-    if (added == true) _reload();
+    if (saved == true) _reload();
+  }
+
+  Future<bool> _confirm({
+    required String title,
+    required String message,
+    required String confirmLabel,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            key: const Key('confirm_action'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
+    return result == true;
+  }
+
+  Future<void> _deleteEntry(LogEntry entry) async {
+    final userId = _userId;
+    if (userId == null) return;
+    final confirmed = await _confirm(
+      title: 'Hapus catatan #${entry.seq}?',
+      message: 'Catatan penyelaman di ${entry.spotName} tanggal ${formatDisplayDate(entry.diveDate)} akan '
+          'dihapus permanen. Nomor catatan sesudahnya bergeser otomatis.',
+      confirmLabel: 'Hapus',
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      await widget.services.logbook.deleteEntry(userId: userId, seq: entry.seq);
+    } on LogbookException catch (error) {
+      if (mounted) _showMessage(error.message);
+      return;
+    }
+    if (!mounted) return;
+    _showMessage('Catatan dihapus.');
+    _reload();
+  }
+
+  Future<void> _resealChain() async {
+    final userId = _userId;
+    if (userId == null) return;
+    final confirmed = await _confirm(
+      title: 'Segel ulang rantai?',
+      message: 'Semua catatan yang ada sekarang akan dianggap benar, lalu rantai hash dihitung ulang. '
+          'Pakai ini hanya kalau kamu yakin isi catatan sekarang sudah benar.',
+      confirmLabel: 'Segel ulang',
+    );
+    if (!confirmed || !mounted) return;
+    await widget.services.logbook.resealChain(userId);
+    if (!mounted) return;
+    _showMessage('Rantai disegel ulang.');
+    _reload();
   }
 
   Future<void> _verify() async {
@@ -90,10 +155,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
   }
 
   void _onMenuSelected(String value) {
-    if (value == 'tamper') {
-      _simulateTampering();
-    } else {
-      _restoreSimulation();
+    switch (value) {
+      case 'tamper':
+        _simulateTampering();
+      case 'restore':
+        _restoreSimulation();
+      case 'reseal':
+        _resealChain();
     }
   }
 
@@ -109,13 +177,14 @@ class _LogbookScreenState extends State<LogbookScreen> {
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'tamper', child: Text('Simulasi pemalsuan (demo)')),
               PopupMenuItem(value: 'restore', child: Text('Pulihkan simulasi')),
+              PopupMenuItem(value: 'reseal', child: Text('Segel ulang rantai')),
             ],
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('add_entry'),
-        onPressed: _addEntry,
+        onPressed: _openForm,
         icon: const Icon(Icons.add),
         label: const Text('Catatan baru'),
       ),
@@ -145,6 +214,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
+        if (entries.isNotEmpty) _buildStatsCard(entries),
         _buildIntegrityCard(),
         if (entries.isEmpty)
           const Padding(
@@ -157,8 +227,31 @@ class _LogbookScreenState extends State<LogbookScreen> {
           )
         else
           for (final entry in entries.reversed)
-            LogEntryCard(entry: entry, isBroken: entry.seq == brokenSeq),
+            LogEntryCard(
+              entry: entry,
+              isBroken: entry.seq == brokenSeq,
+              onEdit: () => _openForm(existing: entry),
+              onDelete: () => _deleteEntry(entry),
+            ),
       ],
+    );
+  }
+
+  Widget _buildStatsCard(List<LogEntry> entries) {
+    final stats = computeLogStats(entries);
+    return SectionCard(
+      icon: Icons.insights_outlined,
+      title: 'Ringkasan',
+      child: Wrap(
+        spacing: 24,
+        runSpacing: 8,
+        children: [
+          _Stat(label: 'Penyelaman', value: '${stats.diveCount}'),
+          _Stat(label: 'Total waktu di dasar', value: formatDuration(stats.totalBottomMinutes)),
+          _Stat(label: 'Terdalam', value: '${stats.deepestMeters} m'),
+          _Stat(label: 'Spot berbeda', value: '${stats.distinctSpots}'),
+        ],
+      ),
     );
   }
 
@@ -194,6 +287,25 @@ class _LogbookScreenState extends State<LogbookScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(fontSize: 11)),
+      ],
     );
   }
 }

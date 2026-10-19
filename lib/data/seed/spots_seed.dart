@@ -2,7 +2,7 @@ import 'package:divefriend/data/models/spot.dart';
 
 /// Naikkan angka ini setiap kali isi [spotsSeed] diubah, supaya database
 /// di HP memuat ulang data terbaru saat aplikasi dibuka.
-const int spotsSeedVersion = 10;
+const int spotsSeedVersion = 11;
 
 const String _levelNote =
     'Estimasi sementara tim, belum ada sumber penilaian level. Perlu ditinjau.';
@@ -116,8 +116,8 @@ const List<Spot> spotsSeed = [
       'Clownfish dan anemon',
     ],
     photo: SpotPhoto(
-      url: 'https://backpackerjakarta.com/wp-content/uploads/2017/07/Wakatobi-Dive-Resort_photo-by-Didi-Lotze.jpg',
-      sourceUrl: 'https://backpackerjakarta.com/taman-nasional-wakatobi-salah-satu-surga-bawah-laut-indonesia-yang-mendunia/',
+      url: 'https://www.wakatobi.com/wp-content/uploads/2023/04/dl_100707_wakatobi_dive_resort_27-Edit.webp',
+      sourceUrl: 'https://www.wakatobi.com/resort/location/',
     ),
     timeZoneLabel: 'WITA',
     priceEstimateIdr: 3000000,
@@ -169,8 +169,6 @@ const List<Spot> spotsSeed = [
     ],
     photo: SpotPhoto(
       url: 'https://upload.wikimedia.org/wikipedia/commons/8/88/Raja_Ampat%2C_Mutiara_Indah_di_Timur_Indonesia.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original',
-      credit: 'I Made Adi Dharmawam',
-      license: 'CC BY-SA 4.0',
       sourceUrl: 'https://commons.wikimedia.org/wiki/File:Raja_Ampat,_Mutiara_Indah_di_Timur_Indonesia.jpg',
     ),
     timeZoneLabel: 'WIT',
@@ -842,8 +840,8 @@ const List<Spot> spotsSeed = [
     depthText: 'Dinding 10 m sampai lebih dari 60 m',
     bestSeason: 'April-November (jarak pandang dan cuaca terbaik)',
     photo: SpotPhoto(
-      url: 'https://balifundiving.com/wp-content/uploads/2025/05/menjangan-island-diving.webp',
-      sourceUrl: 'https://balifundiving.com/id/situs-menyelam-di-bali/pulau-menjangan/',
+      url: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/116080734.jpg?k=9c1fc64493a9861e18709bebfdb0a9d736e9f50209b61e20fd751c22cf128976&o=',
+      sourceUrl: 'https://www.booking.com/hotel/id/menjangan-dynasty-resort.id.html?chal_t=1792397476911&force_referer=https%3A%2F%2Fwww.google.com%2F',
     ),
     latitude: -8.09604,
     longitude: 114.51489,

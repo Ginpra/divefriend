@@ -6,6 +6,7 @@ import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
+import 'package:divefriend/services/spot_sync_service.dart';
 
 /// Kumpulan layanan yang dipakai banyak layar. Dibuat sekali di main.dart
 /// lalu dioper lewat constructor, jadi mudah ditukar dengan versi palsu saat tes.
@@ -19,6 +20,7 @@ class AppServices {
     required this.sensors,
     required this.maps,
     required this.logbook,
+    required this.sync,
   });
 
   final SpotRepository spots;
@@ -29,4 +31,5 @@ class AppServices {
   final SensorService sensors;
   final MapLauncher maps;
   final LogbookService logbook;
+  final SpotSyncService sync;
 }

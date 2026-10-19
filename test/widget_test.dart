@@ -4,10 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
+import 'package:divefriend/data/remote/spot_remote_source.dart';
 import 'package:divefriend/data/seed/spots_seed.dart';
 import 'package:divefriend/features/converter/time_converter_card.dart';
 import 'package:divefriend/features/spot/gathering_time_card.dart';
-import 'package:divefriend/main.dart';
+import 'package:divefriend/app.dart';
 import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
@@ -19,6 +20,7 @@ Future<void> _pumpApp(
   WidgetTester tester, {
   ExchangeRateService? rates,
   MarineService? marine,
+  SpotRemoteSource? spotRemote,
 }) async {
   SharedPreferences.setMockInitialValues({});
   final auth = AuthService(
@@ -32,6 +34,7 @@ Future<void> _pumpApp(
     auth: auth,
     rates: rates,
     marine: marine,
+    spotRemote: spotRemote,
     spots: spotsSeed,
   );
   await tester.pumpWidget(DiveFriendApp(services: services));
@@ -276,6 +279,65 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Logbook masih kosong'), findsOneWidget);
+  });
+
+  testWidgets('Beranda menyinkronkan spot dari Supabase: data online menimpa data lokal', (tester) async {
+    const onlineSpot = Spot(
+      id: 'online',
+      name: 'Spot Online Uji',
+      region: 'Wilayah Uji',
+      level: SpotLevel.pemula,
+      levelBasis: 'uji',
+      types: [SpotType.scuba],
+      tagline: 'uji',
+      summary: 'uji',
+      sources: ['uji'],
+    );
+    await _pumpApp(tester, spotRemote: FakeSpotRemoteSource(spots: [onlineSpot]));
+    await _login(tester, 'budi', 'password123');
+
+    expect(find.text('Spot Online Uji'), findsOneWidget);
+    expect(find.text('Kepulauan Banda'), findsNothing);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('sync_status'))).data,
+      'Data spot disinkronkan dari Supabase (1 spot).',
+    );
+  });
+
+  testWidgets('Beranda saat sinkron gagal (offline): data lokal tetap tampil dan ada pesan', (tester) async {
+    await _pumpApp(
+      tester,
+      spotRemote: FakeSpotRemoteSource(failure: const ApiFailure(ApiFailureKind.offline)),
+    );
+    await _login(tester, 'budi', 'password123');
+
+    expect(find.text('Kepulauan Banda'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('sync_status'))).data,
+      'Tidak ada koneksi internet, memakai data spot lokal.',
+    );
+  });
+
+  testWidgets('Beranda tanpa Supabase menampilkan status belum diatur', (tester) async {
+    await _pumpApp(tester);
+    await _login(tester, 'budi', 'password123');
+
+    expect(
+      tester.widget<Text>(find.byKey(const Key('sync_status'))).data,
+      'Supabase belum diatur, memakai data spot lokal.',
+    );
+  });
+
+  testWidgets('tombol sinkronkan di bar atas menjalankan sinkronisasi lagi', (tester) async {
+    final remote = FakeSpotRemoteSource(failure: const ApiFailure(ApiFailureKind.offline));
+    await _pumpApp(tester, spotRemote: remote);
+    await _login(tester, 'budi', 'password123');
+    expect(remote.calls, 1);
+
+    await tester.tap(find.byTooltip('Sinkronkan data spot'));
+    await tester.pumpAndSettle();
+
+    expect(remote.calls, 2);
   });
 }
 

@@ -137,6 +137,198 @@ void main() {
     expect(report.problem, ChainProblem.sequenceGap);
   });
 
+  group('ubah (update)', () {
+    test('mengubah isi, mengisi updatedAt, dan rantai tetap utuh', () async {
+      await _addTwo(service);
+      final updatedService = LogbookService(repository, clock: () => DateTime.utc(2026, 10, 25, 9));
+
+      final updated = await updatedService.updateEntry(
+        userId: 1,
+        seq: 1,
+        diveDate: DateTime(2026, 10, 18),
+        spotId: 'banda',
+        spotName: 'Kepulauan Banda',
+        maxDepthM: 22,
+        bottomTimeMin: 48,
+        notes: 'Arus berubah',
+      );
+
+      expect(updated.seq, 1);
+      expect(updated.maxDepthM, 22);
+      expect(updated.notes, 'Arus berubah');
+      expect(updated.updatedAt, '2026-10-25T09:00:00.000Z');
+      expect(updated.createdAt, '2026-10-18T03:00:00.000Z');
+      final entries = await service.entries(1);
+      expect(entries.length, 2);
+      expect(entries[1].prevHash, entries[0].hash);
+      expect((await service.verify(1)).isValid, isTrue);
+    });
+
+    test('mengubah catatan yang tidak ada ditolak', () async {
+      await _addTwo(service);
+      expect(
+        () => service.updateEntry(
+          userId: 1,
+          seq: 9,
+          diveDate: DateTime(2026, 10, 18),
+          spotId: 'banda',
+          spotName: 'Kepulauan Banda',
+          maxDepthM: 10,
+          bottomTimeMin: 30,
+          notes: '',
+        ),
+        throwsA(isA<LogbookException>()),
+      );
+    });
+
+    test('mengubah tanggal ke sebelum catatan lain menggeser nomor dan rantai tetap utuh', () async {
+      await _addTwo(service);
+
+      final moved = await service.updateEntry(
+        userId: 1,
+        seq: 2,
+        diveDate: DateTime(2026, 10, 1),
+        spotId: 'raja-ampat',
+        spotName: 'Raja Ampat',
+        maxDepthM: 25,
+        bottomTimeMin: 50,
+        notes: 'Manta di cleaning station',
+      );
+
+      expect(moved.seq, 1);
+      final entries = await service.entries(1);
+      expect(entries.map((e) => e.spotId), ['raja-ampat', 'banda']);
+      expect(entries.map((e) => e.seq), [1, 2]);
+      expect((await service.verify(1)).isValid, isTrue);
+    });
+  });
+
+  group('hapus (delete)', () {
+    test('menghapus catatan menggeser nomor sesudahnya dan rantai tetap utuh', () async {
+      await _addTwo(service);
+      await service.addEntry(
+        userId: 1,
+        diveDate: DateTime(2026, 10, 20),
+        spotId: 'komodo',
+        spotName: 'Taman Nasional Komodo',
+        maxDepthM: 20,
+        bottomTimeMin: 40,
+        notes: 'ketiga',
+      );
+
+      await service.deleteEntry(userId: 1, seq: 2);
+
+      final entries = await service.entries(1);
+      expect(entries.map((e) => e.notes), ['Arus tenang', 'ketiga']);
+      expect(entries.map((e) => e.seq), [1, 2]);
+      expect(entries[1].prevHash, entries[0].hash);
+      expect((await service.verify(1)).isValid, isTrue);
+    });
+
+    test('menghapus semua catatan menghasilkan logbook kosong yang utuh', () async {
+      await _addTwo(service);
+      await service.deleteEntry(userId: 1, seq: 1);
+      await service.deleteEntry(userId: 1, seq: 1);
+
+      expect(await service.entries(1), isEmpty);
+      expect((await service.verify(1)).isValid, isTrue);
+    });
+
+    test('menghapus catatan yang tidak ada ditolak', () async {
+      await _addTwo(service);
+      expect(() => service.deleteEntry(userId: 1, seq: 7), throwsA(isA<LogbookException>()));
+    });
+
+    test('catatan pengguna lain tidak ikut terhapus', () async {
+      await _addTwo(service, userId: 1);
+      await _addTwo(service, userId: 2);
+      await service.deleteEntry(userId: 1, seq: 1);
+
+      expect((await service.entries(1)).length, 1);
+      expect((await service.entries(2)).length, 2);
+    });
+  });
+
+  group('urutan menurut tanggal (tambah mundur)', () {
+    test('catatan bertanggal lebih awal disisipkan di depan dan nomor bergeser', () async {
+      await _addTwo(service);
+      final inserted = await service.addEntry(
+        userId: 1,
+        diveDate: DateTime(2026, 10, 5),
+        spotId: 'komodo',
+        spotName: 'Taman Nasional Komodo',
+        maxDepthM: 20,
+        bottomTimeMin: 40,
+        notes: 'diisi belakangan',
+      );
+
+      expect(inserted.seq, 1);
+      final entries = await service.entries(1);
+      expect(entries.map((e) => e.diveDate), ['2026-10-05', '2026-10-18', '2026-10-19']);
+      expect(entries.map((e) => e.seq), [1, 2, 3]);
+      expect((await service.verify(1)).isValid, isTrue);
+    });
+
+    test('dua penyelaman di hari yang sama tetap urut menurut waktu dibuat', () async {
+      var now = DateTime.utc(2026, 10, 18, 3);
+      final ticking = LogbookService(repository, clock: () => now);
+      await ticking.addEntry(
+        userId: 1,
+        diveDate: DateTime(2026, 10, 18),
+        spotId: 'banda',
+        spotName: 'Kepulauan Banda',
+        maxDepthM: 18,
+        bottomTimeMin: 45,
+        notes: 'pagi',
+      );
+      now = DateTime.utc(2026, 10, 18, 6);
+      await ticking.addEntry(
+        userId: 1,
+        diveDate: DateTime(2026, 10, 18),
+        spotId: 'banda',
+        spotName: 'Kepulauan Banda',
+        maxDepthM: 15,
+        bottomTimeMin: 40,
+        notes: 'siang',
+      );
+
+      expect((await ticking.entries(1)).map((e) => e.notes), ['pagi', 'siang']);
+    });
+  });
+
+  group('perubahan saat rantai rusak', () {
+    test('tambah, ubah, dan hapus ditolak supaya kerusakan tidak tertutupi', () async {
+      await _addTwo(service);
+      await service.simulateTampering(1);
+
+      await expectLater(
+        service.addEntry(
+          userId: 1,
+          diveDate: DateTime(2026, 10, 21),
+          spotId: 'komodo',
+          spotName: 'Taman Nasional Komodo',
+          maxDepthM: 20,
+          bottomTimeMin: 40,
+          notes: '',
+        ),
+        throwsA(isA<LogbookException>().having((e) => e.message, 'message', contains('Perubahan ditolak'))),
+      );
+      await expectLater(service.deleteEntry(userId: 1, seq: 2), throwsA(isA<LogbookException>()));
+      expect((await service.entries(1)).length, 2);
+    });
+
+    test('resealChain menerima kondisi sekarang dan membuat rantai utuh lagi', () async {
+      await _addTwo(service);
+      await service.simulateTampering(1);
+      expect((await service.verify(1)).isValid, isFalse);
+
+      await service.resealChain(1);
+
+      expect((await service.verify(1)).isValid, isTrue);
+      expect((await service.entries(1)).first.notes, 'Arus tenang${LogbookService.tamperMarker}');
+    });
+  });
+
   group('formatIsoDate dan formatDisplayDate', () {
     test('format tanggal', () {
       expect(formatIsoDate(DateTime(2026, 3, 5)), '2026-03-05');

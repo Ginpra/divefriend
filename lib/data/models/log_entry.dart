@@ -13,11 +13,13 @@ class LogEntry {
     required this.createdAt,
     required this.prevHash,
     required this.hash,
+    this.updatedAt,
   });
 
   final int userId;
 
-  /// Nomor urut catatan milik pengguna ini, mulai dari 1 tanpa loncat.
+  /// Nomor urut penyelaman milik pengguna ini (1, 2, 3, dst). Mengikuti urutan tanggal penyelaman,
+  /// jadi bisa bergeser kalau ada catatan yang disisipkan, diubah tanggalnya, atau dihapus.
   final int seq;
 
   /// Tanggal penyelaman, format "2026-10-18".
@@ -30,42 +32,45 @@ class LogEntry {
   final int bottomTimeMin;
   final String notes;
 
-  /// Waktu catatan dibuat (UTC), format ISO 8601.
+  /// Waktu catatan pertama kali dibuat (UTC), format ISO 8601.
   final String createdAt;
   final String prevHash;
   final String hash;
 
-  LogEntry withHash(String newHash) {
+  /// Waktu catatan terakhir diubah lewat aplikasi (UTC), null kalau belum pernah diubah.
+  final String? updatedAt;
+
+  LogEntry copyWith({
+    int? seq,
+    String? diveDate,
+    String? spotId,
+    String? spotName,
+    int? maxDepthM,
+    int? bottomTimeMin,
+    String? notes,
+    String? prevHash,
+    String? hash,
+    String? updatedAt,
+  }) {
     return LogEntry(
       userId: userId,
-      seq: seq,
-      diveDate: diveDate,
-      spotId: spotId,
-      spotName: spotName,
-      maxDepthM: maxDepthM,
-      bottomTimeMin: bottomTimeMin,
-      notes: notes,
+      seq: seq ?? this.seq,
+      diveDate: diveDate ?? this.diveDate,
+      spotId: spotId ?? this.spotId,
+      spotName: spotName ?? this.spotName,
+      maxDepthM: maxDepthM ?? this.maxDepthM,
+      bottomTimeMin: bottomTimeMin ?? this.bottomTimeMin,
+      notes: notes ?? this.notes,
       createdAt: createdAt,
-      prevHash: prevHash,
-      hash: newHash,
+      prevHash: prevHash ?? this.prevHash,
+      hash: hash ?? this.hash,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  LogEntry withNotes(String newNotes) {
-    return LogEntry(
-      userId: userId,
-      seq: seq,
-      diveDate: diveDate,
-      spotId: spotId,
-      spotName: spotName,
-      maxDepthM: maxDepthM,
-      bottomTimeMin: bottomTimeMin,
-      notes: newNotes,
-      createdAt: createdAt,
-      prevHash: prevHash,
-      hash: hash,
-    );
-  }
+  LogEntry withHash(String newHash) => copyWith(hash: newHash);
+
+  LogEntry withNotes(String newNotes) => copyWith(notes: newNotes);
 
   Map<String, Object?> toMap() {
     return {
@@ -80,6 +85,7 @@ class LogEntry {
       'created_at': createdAt,
       'prev_hash': prevHash,
       'hash': hash,
+      'updated_at': updatedAt,
     };
   }
 
@@ -96,6 +102,7 @@ class LogEntry {
       createdAt: row['created_at'] as String,
       prevHash: row['prev_hash'] as String,
       hash: row['hash'] as String,
+      updatedAt: row['updated_at'] as String?,
     );
   }
 }
