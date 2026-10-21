@@ -11,4 +11,7 @@ abstract class UserRepository {
     required String salt,
   });
   Future<void> updatePhotoPath(int id, String? photoPath);
+
+  /// Menghapus akun beserta barisnya di tabel pengguna.
+  Future<void> delete(int id);
 }

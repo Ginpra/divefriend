@@ -16,7 +16,7 @@ import 'package:divefriend/features/spot/spot_detail_screen.dart';
 /// tersedia garis lurus dari lokasi pengguna ke spot.
 ///
 /// Garis yang tampil adalah garis lurus, bukan rute jalan: spot ada di pulau lain, jadi rute
-/// jalan tidak ada. Untuk petunjuk belokan, tombol Google Maps tetap tersedia.
+/// jalan tidak ada. Untuk kompas dan rute ke pintu masuk spot, tombol Arah membuka layar Arah ke Spot.
 class SpotMapScreen extends StatefulWidget {
   const SpotMapScreen({super.key, required this.services, this.initialSpot});
 
@@ -85,14 +85,6 @@ class _SpotMapScreenState extends State<SpotMapScreen> {
       );
     }
     return MapOptions(initialCenter: _latLng(spot), initialZoom: 9);
-  }
-
-  Future<void> _openGoogleMaps(Spot spot) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final ok = await widget.services.maps.open(GeoPoint(spot.latitude!, spot.longitude!));
-    if (!ok) {
-      messenger.showSnackBar(const SnackBar(content: Text('Aplikasi peta tidak bisa dibuka.')));
-    }
   }
 
   @override
@@ -260,7 +252,6 @@ class _SpotMapScreenState extends State<SpotMapScreen> {
                 children: [
                   OutlinedButton(onPressed: () => _openDetail(selected), child: const Text('Detail')),
                   OutlinedButton(onPressed: () => _openDirection(selected), child: const Text('Arah')),
-                  OutlinedButton(onPressed: () => _openGoogleMaps(selected), child: const Text('Google Maps')),
                   if (position != null)
                     FilledButton(
                       onPressed: () => setState(() => _showLine = !_showLine),

@@ -15,3 +15,10 @@ String formatNumber(double value, {int decimals = 0}) {
 String formatMoney(double amount, Currency currency) {
   return '${currency.code} ${formatNumber(amount, decimals: currency.decimals)}';
 }
+
+/// Tanggal gaya Indonesia, contoh "02/11/2026".
+String formatDate(DateTime date) {
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  return '$day/$month/${date.year}';
+}

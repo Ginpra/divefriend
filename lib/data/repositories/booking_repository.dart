@@ -9,4 +9,7 @@ abstract class BookingRepository {
   Future<List<Booking>> forUser(int userId);
 
   Future<void> delete({required int userId, required int id});
+
+  /// Menghapus semua pesanan milik [userId] (dipakai saat akun dihapus).
+  Future<void> deleteAllForUser(int userId);
 }

@@ -102,10 +102,12 @@ void main() {
     });
   });
 
-  test('aturan asisten melarang saran medis dan keselamatan, dan memuat data spot', () {
+  test('aturan asisten: tips umum boleh, saran medis dan rencana teknis dilarang, data spot ikut', () {
     final prompt = buildSystemPrompt(spotsSeed);
 
+    expect(prompt, contains('tips keselamatan yang bersifat umum'));
     expect(prompt, contains('DILARANG memberi saran medis'));
+    expect(prompt, contains('jadwal dekompresi'));
     expect(prompt, contains('instruktur'));
     expect(prompt, contains('Taman Nasional Bunaken'));
   });

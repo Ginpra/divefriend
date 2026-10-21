@@ -9,12 +9,11 @@ import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/direction/direction_screen.dart';
 import 'package:divefriend/features/booking/booking_screen.dart';
 import 'package:divefriend/features/map/spot_map_screen.dart';
-import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/features/spot/price_card.dart';
 import 'package:divefriend/features/spot/sea_conditions_card.dart';
 
-/// Detail spot. Gelombang (Open-Meteo), harga 4 mata uang (Frankfurter), dan jam kumpul
-/// (hitung sendiri) masing-masing punya kartu sendiri supaya layar ini tetap pendek.
+/// Detail spot. Gelombang (Open-Meteo) dan harga 4 mata uang (Frankfurter) masing-masing
+/// punya kartu sendiri supaya layar ini tetap pendek. Jam kumpul diatur di layar Booking.
 class SpotDetailScreen extends StatelessWidget {
   const SpotDetailScreen({super.key, required this.spot, required this.services});
 
@@ -153,7 +152,6 @@ class SpotDetailScreen extends StatelessWidget {
                 const Divider(height: 32),
                 SeaConditionsCard(spot: spot, marine: services.marine),
                 PriceCard(spot: spot, rates: services.rates),
-                GatheringTimeCard(spot: spot),
                 const SizedBox(height: 2),
                 SizedBox(
                   width: double.infinity,

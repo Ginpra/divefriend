@@ -7,7 +7,6 @@ import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/remote/spot_remote_source.dart';
 import 'package:divefriend/data/seed/spots_seed.dart';
 import 'package:divefriend/features/converter/time_converter_card.dart';
-import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/app.dart';
 import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/auth_service.dart';
@@ -106,7 +105,7 @@ void main() {
     expect(find.text('Wakatobi'), findsNothing);
   });
 
-  testWidgets('Detail Spot menampilkan gelombang, harga simulasi, dan jam kumpul', (tester) async {
+  testWidgets('Detail Spot menampilkan gelombang dan harga simulasi', (tester) async {
     await _pumpApp(tester);
     await _openBandaDetail(tester);
 
@@ -119,9 +118,6 @@ void main() {
     expect(find.text('USD 166,38'), findsOneWidget);
     expect(find.text('EUR 147,85'), findsOneWidget);
     expect(find.text('SGD 212,84'), findsOneWidget);
-
-    expect(find.text('Jam kumpul'), findsOneWidget);
-    expect(find.text('07.30 WIT'), findsOneWidget);
   });
 
   testWidgets('Detail Spot saat offline: pesan jelas, tombol coba lagi, harga rupiah tetap ada', (tester) async {
@@ -209,50 +205,6 @@ void main() {
     expect(_textOf(tester, 'time_wit'), '12.00');
     expect(_textOf(tester, 'time_wib'), '10.00');
     expect(_textOf(tester, 'time_london'), '04.00');
-  });
-
-  testWidgets('jam kumpul: London bergeser ke hari sebelumnya saat GMT', (tester) async {
-    final wakatobi = spotsSeed.firstWhere((spot) => spot.id == 'wakatobi');
-
-    await _pumpGathering(tester, wakatobi, DateTime.utc(2026, 10, 18, 3));
-    expect(find.text('07.30 WITA'), findsOneWidget);
-    expect(find.text('00.30 BST'), findsOneWidget);
-
-    await _pumpGathering(tester, wakatobi, DateTime.utc(2026, 10, 27, 3));
-    expect(find.text('23.30 GMT (hari sebelumnya)'), findsOneWidget);
-  });
-
-  testWidgets('jam kumpul tanpa zona waktu spot menampilkan tidak tersedia', (tester) async {
-    const spot = Spot(
-      id: 'uji',
-      name: 'Spot Uji',
-      region: 'Uji',
-      level: SpotLevel.pemula,
-      levelBasis: 'uji',
-      types: [SpotType.scuba],
-      tagline: 'uji',
-      summary: 'uji',
-      sources: ['uji'],
-    );
-    await _pumpGathering(tester, spot, DateTime.utc(2026, 10, 18, 3));
-
-    expect(
-      find.text('Jam kumpul tidak tersedia karena zona waktu spot belum diketahui.'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('menu Arah ke Spot: pilih spot lalu layar arah terbuka', (tester) async {
-    await _pumpApp(tester);
-    await _login(tester, 'budi', 'password123');
-
-    await _openFeature(tester, 'Arah ke Spot');
-
-    expect(find.text('Pilih spot tujuan'), findsOneWidget);
-    await tester.tap(find.text('Kepulauan Banda'));
-    await _pumpFrames(tester);
-
-    expect(find.textContaining('Mencari posisi GPS'), findsOneWidget);
   });
 
   testWidgets('tombol Arah ke Spot di Detail Spot membuka layar arah', (tester) async {
@@ -372,11 +324,3 @@ Future<void> _pumpTimeCard(WidgetTester tester, DateTime initialTime) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _pumpGathering(WidgetTester tester, Spot spot, DateTime now) async {
-  await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(body: GatheringTimeCard(spot: spot, now: now)),
-    ),
-  );
-  await tester.pumpAndSettle();
-}

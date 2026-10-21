@@ -94,6 +94,9 @@ class LogbookService {
     await _commit(userId, existing.where((entry) => entry.seq != seq).toList());
   }
 
+  /// Menghapus seluruh catatan logbook milik [userId] (dipakai saat akun dihapus).
+  Future<void> deleteAllFor(int userId) => _repository.replaceAll(userId, const []);
+
   Future<ChainReport> verify(int userId) async {
     return verifyChain(await _repository.entriesFor(userId));
   }

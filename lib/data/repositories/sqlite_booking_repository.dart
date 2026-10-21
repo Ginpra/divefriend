@@ -35,4 +35,10 @@ class SqliteBookingRepository implements BookingRepository {
       whereArgs: [userId, id],
     );
   }
+
+  @override
+  Future<void> deleteAllForUser(int userId) async {
+    final db = await _appDatabase.database;
+    await db.delete('bookings', where: 'user_id = ?', whereArgs: [userId]);
+  }
 }

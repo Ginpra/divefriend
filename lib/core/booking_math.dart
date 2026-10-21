@@ -49,3 +49,30 @@ DateTime? reminderTime({
   );
   return gathering.subtract(option.before).toLocal();
 }
+
+/// Label zona waktu pengguna dari selisihnya terhadap UTC. Zona Indonesia diberi nama,
+/// zona lain ditulis "UTC+X".
+String userZoneLabel(Duration offset) {
+  if (offset == const Duration(hours: 7)) return 'WIB';
+  if (offset == const Duration(hours: 8)) return 'WITA';
+  if (offset == const Duration(hours: 9)) return 'WIT';
+  final sign = offset.isNegative ? '-' : '+';
+  final absolute = offset.abs();
+  final hours = absolute.inHours;
+  final minutes = absolute.inMinutes % 60;
+  final minuteText = minutes == 0 ? '' : ':${minutes.toString().padLeft(2, '0')}';
+  return 'UTC$sign$hours$minuteText';
+}
+
+/// Mengubah jam dinding pengguna menjadi jam dinding di zona spot.
+/// [userWall] adalah jam yang dibaca pengguna di jam tangannya, dibuat dengan DateTime.utc supaya
+/// tidak ikut zona HP. [userOffset] adalah selisih zona pengguna terhadap UTC saat itu.
+/// Hasilnya juga jam dinding berbentuk DateTime.utc, tanggalnya bisa bergeser kalau melewati tengah malam.
+DateTime userWallToSpotWall({
+  required DateTime userWall,
+  required Duration userOffset,
+  required TimeZoneId spotZone,
+}) {
+  final instantUtc = userWall.subtract(userOffset);
+  return utcToWall(spotZone, instantUtc);
+}

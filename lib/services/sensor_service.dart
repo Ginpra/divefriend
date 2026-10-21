@@ -62,7 +62,8 @@ class DeviceSensorService implements SensorService {
 
   @override
   Stream<void> shakes() {
-    final detector = ShakeDetector();
+    // Ambang dibuat lebih ringan dari bawaan (2,7 g) karena goyangan normal dengan satu tangan sulit mencapainya.
+    final detector = ShakeDetector(thresholdG: 1.8, joltWindow: const Duration(milliseconds: 800));
     return accelerometerEventStream(samplingPeriod: _shakePeriod)
         .where((event) => detector.addSample(Vec3(event.x, event.y, event.z), DateTime.now()))
         .map<void>((_) {});

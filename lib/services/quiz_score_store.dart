@@ -17,4 +17,10 @@ class QuizScoreStore {
     await prefs.setInt(_key(userId), score);
     return true;
   }
+
+  /// Menghapus skor milik [userId] (dipakai saat akun dihapus).
+  Future<void> clear(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key(userId));
+  }
 }

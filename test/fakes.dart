@@ -27,6 +27,7 @@ import 'package:divefriend/services/spot_sync_service.dart';
 /// Penyimpanan pengguna di memori, dipakai tes agar tidak butuh SQLite asli.
 class InMemoryUserRepository implements UserRepository {
   final List<AppUser> _users = [];
+  int _nextId = 1;
 
   @override
   Future<AppUser?> findByUsername(String username) async {
@@ -52,7 +53,7 @@ class InMemoryUserRepository implements UserRepository {
     required String salt,
   }) async {
     final user = AppUser(
-      id: _users.length + 1,
+      id: _nextId++,
       name: name,
       username: username,
       passwordHash: passwordHash,
@@ -66,6 +67,11 @@ class InMemoryUserRepository implements UserRepository {
   Future<void> updatePhotoPath(int id, String? photoPath) async {
     final index = _users.indexWhere((user) => user.id == id);
     if (index != -1) _users[index] = _users[index].withPhoto(photoPath);
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    _users.removeWhere((user) => user.id == id);
   }
 }
 
@@ -336,6 +342,11 @@ class InMemoryBookingRepository implements BookingRepository {
   @override
   Future<void> delete({required int userId, required int id}) async {
     _bookings.removeWhere((booking) => booking.userId == userId && booking.id == id);
+  }
+
+  @override
+  Future<void> deleteAllForUser(int userId) async {
+    _bookings.removeWhere((booking) => booking.userId == userId);
   }
 }
 

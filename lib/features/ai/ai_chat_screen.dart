@@ -51,8 +51,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
   }
 
-  Future<void> _send() async {
-    final text = _controller.text.trim();
+  Future<void> _send() => _sendText(_controller.text);
+
+  Future<void> _sendText(String raw) async {
+    final text = raw.trim();
     if (text.isEmpty || _sending) return;
     _controller.clear();
     setState(() {
@@ -103,6 +105,36 @@ class _AiChatScreenState extends State<AiChatScreen> {
     );
   }
 
+  /// Pertanyaan contoh supaya pengguna tidak bingung mau bertanya apa. Ketukan langsung mengirimnya.
+  static const List<String> _suggestions = [
+    'Spot terbaik untuk pemula',
+    'Spot paling dalam',
+    'Bandingkan Komodo dan Raja Ampat',
+    'Musim terbaik ke Raja Ampat',
+    'Biota apa saja di Bunaken',
+    'Tips umum sebelum diving',
+  ];
+
+  /// Tampilan awal. Dibuat bisa digulir supaya tidak overflow saat keyboard terbuka.
+  Widget _buildEmptyState() {
+    return const SingleChildScrollView(
+      padding: EdgeInsets.all(24),
+      child: Column(
+        children: [
+          SizedBox(height: 16),
+          Icon(Icons.smart_toy_outlined, size: 56, color: AppColors.teal),
+          SizedBox(height: 12),
+          Text('Tanya apa saja', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 6),
+          Text(
+            'Tanya spot terbaik, terdalam, musim, biota, atau tips umum. Pilih salah satu contoh di bawah, atau tulis sendiri.',
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNotConfigured() {
     return const StateMessage(
       icon: Icons.key_off_outlined,
@@ -119,17 +151,14 @@ class _AiChatScreenState extends State<AiChatScreen> {
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Text(
-            'Jawaban dibuat oleh AI dan bisa keliru. Asisten tidak memberi saran medis atau keselamatan menyelam.',
+            'Jawaban dibuat oleh AI dan bisa keliru. Tips keselamatan hanya bersifat umum, instruktur bersertifikat '
+            'yang menentukan hal teknisnya. Asisten tidak memberi saran medis.',
             style: TextStyle(fontSize: 11),
           ),
         ),
         Expanded(
           child: _turns.isEmpty
-              ? const StateMessage(
-                  icon: Icons.smart_toy_outlined,
-                  title: 'Tanya apa saja',
-                  message: 'Contoh: kapan musim terbaik ke Raja Ampat, atau biota apa yang ada di Bunaken?',
-                )
+              ? _buildEmptyState()
               : ListView.builder(
                   controller: _scroll,
                   padding: const EdgeInsets.all(12),
@@ -155,6 +184,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     );
                   },
                 ),
+        ),
+        SizedBox(
+          height: 44,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: _suggestions.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            itemBuilder: (context, index) => ActionChip(
+              label: Text(_suggestions[index]),
+              onPressed: _sending ? null : () => _sendText(_suggestions[index]),
+            ),
+          ),
         ),
         SafeArea(
           top: false,

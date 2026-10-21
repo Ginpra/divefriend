@@ -85,6 +85,17 @@ List<QuizQuestion> buildQuiz(List<Spot> spots, {int count = 10, Random? random})
   return questions;
 }
 
+/// Jumlah biota berbeda (nama + spot) yang bisa diundi, dipakai untuk "ditemukan X dari Y".
+int countBiota(List<Spot> spots) {
+  return {
+    for (final spot in spots)
+      for (final name in _usableBiota(spot)) biotaKey(name, spot.name),
+  }.length;
+}
+
+/// Kunci unik satu biota di satu spot, dipakai untuk koleksi.
+String biotaKey(String name, String spotName) => '$name|$spotName';
+
 /// Memilih satu biota acak dari seluruh spot. Null kalau tidak ada biota sama sekali.
 BiotaPick? pickRandomBiota(List<Spot> spots, {Random? random}) {
   final rng = random ?? Random();

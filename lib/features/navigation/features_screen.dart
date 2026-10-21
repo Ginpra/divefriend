@@ -5,7 +5,6 @@ import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/features/ai/ai_chat_screen.dart';
 import 'package:divefriend/features/booking/booking_list_screen.dart';
 import 'package:divefriend/features/converter/converter_screen.dart';
-import 'package:divefriend/features/direction/spot_picker_screen.dart';
 import 'package:divefriend/features/game/game_screen.dart';
 import 'package:divefriend/features/logbook/logbook_screen.dart';
 import 'package:divefriend/features/map/spot_map_screen.dart';
@@ -26,14 +25,8 @@ class FeaturesScreen extends StatelessWidget {
       (
         icon: Icons.map_outlined,
         title: 'Peta Spot',
-        subtitle: 'Peta OpenStreetMap, pilih spot lalu peta pindah ke sana',
+        subtitle: 'Peta OpenStreetMap, pilih spot lalu lihat jarak, detail, dan arah',
         page: SpotMapScreen(services: services),
-      ),
-      (
-        icon: Icons.explore_outlined,
-        title: 'Arah ke Spot',
-        subtitle: 'Kompas, jarak, dan rute ke pintu masuk spot',
-        page: SpotPickerScreen(services: services),
       ),
       (
         icon: Icons.currency_exchange,

@@ -65,4 +65,10 @@ class SqliteUserRepository implements UserRepository {
       whereArgs: [id],
     );
   }
+
+  @override
+  Future<void> delete(int id) async {
+    final db = await _appDatabase.database;
+    await db.delete('users', where: 'id = ?', whereArgs: [id]);
+  }
 }

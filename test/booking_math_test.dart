@@ -83,4 +83,60 @@ void main() {
     expect(copy.priceIdrPerPerson, 3000000);
     expect(copy.createdAt, DateTime(2026, 10, 21, 9, 0));
   });
+
+  group('konversi jam pengguna ke jam spot', () {
+    const wib = Duration(hours: 7);
+
+    test('10.00 WIB menjadi 12.00 WIT di Banda', () {
+      final spotWall = userWallToSpotWall(
+        userWall: DateTime.utc(2026, 11, 2, 10, 0),
+        userOffset: wib,
+        spotZone: TimeZoneId.wit,
+      );
+      expect(spotWall, DateTime.utc(2026, 11, 2, 12, 0));
+      expect(dayShiftNote(DateTime.utc(2026, 11, 2, 10, 0), spotWall), isNull);
+    });
+
+    test('23.00 WIB menjadi 01.00 WIT di hari berikutnya', () {
+      final userWall = DateTime.utc(2026, 11, 2, 23, 0);
+      final spotWall = userWallToSpotWall(userWall: userWall, userOffset: wib, spotZone: TimeZoneId.wit);
+      expect(spotWall, DateTime.utc(2026, 11, 3, 1, 0));
+      expect(dayShiftNote(userWall, spotWall), 'hari berikutnya');
+    });
+
+    test('08.00 WITA menjadi 07.00 WIB di Karimunjawa', () {
+      final spotWall = userWallToSpotWall(
+        userWall: DateTime.utc(2026, 11, 2, 8, 0),
+        userOffset: const Duration(hours: 8),
+        spotZone: TimeZoneId.wib,
+      );
+      expect(spotWall, DateTime.utc(2026, 11, 2, 7, 0));
+    });
+
+    test('pengguna di London (GMT) 09.00 menjadi 16.00 WIB', () {
+      final userWall = DateTime.utc(2026, 11, 2, 9, 0);
+      final spotWall = userWallToSpotWall(userWall: userWall, userOffset: Duration.zero, spotZone: TimeZoneId.wib);
+      expect(spotWall, DateTime.utc(2026, 11, 2, 16, 0));
+    });
+
+    test('hari bisa mundur kalau spot lebih barat dari pengguna', () {
+      final userWall = DateTime.utc(2026, 11, 2, 1, 0);
+      final spotWall = userWallToSpotWall(
+        userWall: userWall,
+        userOffset: const Duration(hours: 9),
+        spotZone: TimeZoneId.wib,
+      );
+      expect(spotWall, DateTime.utc(2026, 11, 1, 23, 0));
+      expect(dayShiftNote(userWall, spotWall), 'hari sebelumnya');
+    });
+  });
+
+  test('label zona pengguna', () {
+    expect(userZoneLabel(const Duration(hours: 7)), 'WIB');
+    expect(userZoneLabel(const Duration(hours: 8)), 'WITA');
+    expect(userZoneLabel(const Duration(hours: 9)), 'WIT');
+    expect(userZoneLabel(const Duration(hours: 1)), 'UTC+1');
+    expect(userZoneLabel(const Duration(hours: 5, minutes: 30)), 'UTC+5:30');
+    expect(userZoneLabel(const Duration(hours: -5)), 'UTC-5');
+  });
 }

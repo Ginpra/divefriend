@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:divefriend/app_services.dart';
+import 'package:divefriend/features/auth/login_screen.dart';
+import 'package:divefriend/services/account_deleter.dart';
 
 /// Profil: foto (dipilih dari galeri, disimpan di folder app, path-nya di SQLite)
 /// dan saklar login biometrik.
@@ -83,6 +85,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (mounted) setState(() => _biometricEnabled = turnOn);
   }
 
+  /// Meminta konfirmasi, lalu menghapus akun beserta seluruh datanya dan kembali ke layar login.
+  Future<void> _deleteAccount() async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus akun?'),
+        content: const Text(
+          'Akun beserta semua datanya akan dihapus permanen dari HP ini: foto profil, logbook, booking dan pengingatnya, '
+          'saran dan kesan, skor kuis, serta koleksi biota. Tindakan ini tidak bisa dibatalkan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Ya, hapus akun'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await AccountDeleter(widget.services).deleteCurrentAccount();
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(content: Text('Akun gagal dihapus, coba lagi.')));
+      return;
+    }
+    messenger.showSnackBar(const SnackBar(content: Text('Akun dan seluruh datanya sudah dihapus.')));
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => LoginScreen(services: widget.services)),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = widget.services.auth.currentUser;
@@ -134,6 +176,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChanged: _toggleBiometric,
             ),
           ],
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _deleteAccount,
+            style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+            icon: const Icon(Icons.delete_forever_outlined),
+            label: const Text('Hapus akun'),
+          ),
         ],
       ),
     );

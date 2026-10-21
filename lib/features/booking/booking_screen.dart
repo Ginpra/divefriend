@@ -9,26 +9,27 @@ import 'package:divefriend/core/widgets/inline_notice.dart';
 import 'package:divefriend/data/models/booking.dart';
 import 'package:divefriend/data/models/exchange_rates.dart';
 import 'package:divefriend/data/models/spot.dart';
-import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/notification_service.dart';
 
-String formatDate(DateTime date) {
-  final day = date.day.toString().padLeft(2, '0');
-  final month = date.month.toString().padLeft(2, '0');
-  return '$day/$month/${date.year}';
-}
+/// Jam kumpul awal yang ditawarkan di langkah pertama.
+const TimeOfDay defaultGatheringTime = TimeOfDay(hour: 7, minute: 30);
 
 /// Booking trip dalam tiga langkah: tanggal dan jam kumpul, jumlah orang, ringkasan.
+/// Tanggal dan jam kumpul diisi menurut zona waktu pengguna (diambil otomatis dari pengaturan HP),
+/// lalu dikonversi ke jam di lokasi spot dan hasilnya langsung ditampilkan.
 /// Ini simulasi tanpa pembayaran. Kalau pengguna memilih pengingat, notifikasi lokal dijadwalkan
 /// mundur dari jam kumpul. Layar ditutup dengan hasil true kalau pesanan tersimpan.
 class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key, required this.services, this.spot});
+  const BookingScreen({super.key, required this.services, this.spot, this.userOffset});
 
   final AppServices services;
 
   /// Kosong kalau dibuka dari daftar booking, pengguna memilih spot di langkah pertama.
   final Spot? spot;
+
+  /// Selisih zona pengguna terhadap UTC. Kosong berarti diambil dari jam HP, diisi hanya saat tes.
+  final Duration? userOffset;
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -64,6 +65,30 @@ class _BookingScreenState extends State<BookingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// Selisih zona pengguna pada tanggal yang dipilih (mengikuti HP, jadi ikut berubah kalau pengguna pindah zona).
+  Duration _offsetFor(DateTime date) {
+    final fixed = widget.userOffset;
+    if (fixed != null) return fixed;
+    return DateTime(date.year, date.month, date.day, _time.hour, _time.minute).timeZoneOffset;
+  }
+
+  /// Jam kumpul di lokasi spot hasil konversi dari jam yang diisi pengguna. Null kalau belum lengkap
+  /// atau zona waktu spot tidak diketahui.
+  ({DateTime wall, TimeZoneId zone})? _spotSchedule() {
+    final spot = _spot;
+    final date = _date;
+    if (spot == null || date == null) return null;
+    final zone = zoneFromLabel(spot.timeZoneLabel);
+    if (zone == null) return null;
+    final userWall = DateTime.utc(date.year, date.month, date.day, _time.hour, _time.minute);
+    final wall = userWallToSpotWall(
+      userWall: userWall,
+      userOffset: _offsetFor(date),
+      spotZone: zone,
+    );
+    return (wall: wall, zone: zone);
+  }
+
   Future<void> _pickDate() async {
     final today = DateTime.now();
     final picked = await showDatePicker(
@@ -90,6 +115,7 @@ class _BookingScreenState extends State<BookingScreen> {
     if (_step == 0) {
       if (_spot == null) return _showMessage('Pilih spot dulu ya.');
       if (_date == null) return _showMessage('Pilih tanggal selam dulu ya.');
+      if (_spotSchedule() == null) return _showMessage('Zona waktu spot ini belum diketahui, jam kumpul belum bisa dihitung.');
     }
     if (_step == 2) {
       _confirm();
@@ -110,10 +136,10 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<void> _confirm() async {
     final spot = _spot;
-    final date = _date;
+    final schedule = _spotSchedule();
     final user = widget.services.auth.currentUser;
     final price = spot?.priceEstimateIdr;
-    if (spot == null || date == null || user == null) return;
+    if (spot == null || schedule == null || user == null) return;
     if (price == null) return _showMessage('Harga simulasi belum ditetapkan untuk spot ini.');
 
     final navigator = Navigator.of(context);
@@ -122,7 +148,10 @@ class _BookingScreenState extends State<BookingScreen> {
       _saving = true;
     });
 
-    final gatheringMinutes = _time.hour * 60 + _time.minute;
+    // Yang disimpan adalah tanggal dan jam di lokasi spot, supaya pengingat dan daftar booking konsisten.
+    final spotWall = schedule.wall;
+    final diveDate = DateTime(spotWall.year, spotWall.month, spotWall.day);
+    final gatheringMinutes = spotWall.hour * 60 + spotWall.minute;
     final int id;
     try {
       id = await widget.services.bookings.add(
@@ -130,7 +159,7 @@ class _BookingScreenState extends State<BookingScreen> {
           userId: user.id,
           spotId: spot.id,
           spotName: spot.name,
-          diveDate: date,
+          diveDate: diveDate,
           gatheringMinutes: gatheringMinutes,
           people: _people,
           priceIdrPerPerson: price,
@@ -147,20 +176,17 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     var message = 'Booking tersimpan.';
-    final zone = zoneFromLabel(spot.timeZoneLabel);
-    final reminderAt = zone == null
-        ? null
-        : reminderTime(
-            diveDate: date,
-            gatheringMinutes: gatheringMinutes,
-            zone: zone,
-            option: _reminder,
-          );
-    if (reminderAt != null && zone != null) {
+    final reminderAt = reminderTime(
+      diveDate: diveDate,
+      gatheringMinutes: gatheringMinutes,
+      zone: schedule.zone,
+      option: _reminder,
+    );
+    if (reminderAt != null) {
       message = await _scheduleReminder(
         id: id,
         spot: spot,
-        zone: zone,
+        zone: schedule.zone,
         gatheringMinutes: gatheringMinutes,
         at: reminderAt,
       );
@@ -245,6 +271,7 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget _buildStepOne() {
     final spot = widget.spot;
     final date = _date;
+    final userZone = userZoneLabel(_offsetFor(date ?? DateTime.now()));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,15 +297,41 @@ class _BookingScreenState extends State<BookingScreen> {
         OutlinedButton.icon(
           onPressed: _pickTime,
           icon: const Icon(Icons.schedule),
-          label: Text('Jam kumpul ${_time.hour.toString().padLeft(2, '0')}.${_time.minute.toString().padLeft(2, '0')} waktu setempat'),
+          label: Text(
+            'Jam kumpul ${_time.hour.toString().padLeft(2, '0')}.${_time.minute.toString().padLeft(2, '0')} $userZone',
+          ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Jam kumpul adalah jam peserta berkumpul di titik keberangkatan sebelum trip dimulai.',
-          style: TextStyle(fontSize: 12),
+        Text(
+          'Isi tanggal dan jam menurut zona waktumu sekarang ($userZone, terbaca otomatis dari HP). '
+          'Aplikasi mengubahnya ke jam di lokasi spot.',
+          style: const TextStyle(fontSize: 12),
         ),
+        const SizedBox(height: 8),
+        _buildConversionNotice(userZone),
       ],
     );
+  }
+
+  /// Pesan hasil konversi jam pengguna ke jam spot.
+  Widget _buildConversionNotice(String userZone) {
+    final schedule = _spotSchedule();
+    final date = _date;
+    if (schedule == null || date == null) {
+      return const SizedBox.shrink();
+    }
+    final userClock = '${_time.hour.toString().padLeft(2, '0')}.${_time.minute.toString().padLeft(2, '0')}';
+    final spotClock = formatClock(schedule.wall);
+    final userWall = DateTime.utc(date.year, date.month, date.day, _time.hour, _time.minute);
+    final shift = dayShiftNote(userWall, schedule.wall);
+    final spotName = _spot?.name ?? 'spot';
+    final sameZone = userZone == schedule.zone.label;
+
+    final text = sameZone
+        ? 'Zona waktumu sama dengan $spotName (${schedule.zone.label}), jam kumpulnya $spotClock ${schedule.zone.label}.'
+        : 'Kamu mengisi $userClock $userZone. Di $spotName jam kumpulnya $spotClock ${schedule.zone.label}'
+            '${shift == null ? '' : ' ($shift)'}.';
+    return InlineNotice(icon: Icons.swap_horiz, message: text);
   }
 
   Widget _buildStepTwo() {
@@ -316,33 +369,31 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget _buildStepThree() {
     final spot = _spot;
     final date = _date;
-    if (spot == null || date == null) {
+    final schedule = _spotSchedule();
+    if (spot == null || date == null || schedule == null) {
       return const Text('Lengkapi langkah pertama dulu.');
     }
     final price = spot.priceEstimateIdr;
-    final zone = zoneFromLabel(spot.timeZoneLabel);
-    final gatheringMinutes = _time.hour * 60 + _time.minute;
-
-    String gatheringText = 'zona waktu spot tidak diketahui';
-    if (zone != null) {
-      final local = DateTime.utc(2000, 1, 1, _time.hour, _time.minute);
-      final londonWall = utcToWall(
-        TimeZoneId.london,
-        gatheringInstantUtc(diveDate: date, gatheringMinutes: gatheringMinutes, zone: zone),
-      );
-      final londonZone = zoneLabelAt(
-        TimeZoneId.london,
-        gatheringInstantUtc(diveDate: date, gatheringMinutes: gatheringMinutes, zone: zone),
-      );
-      gatheringText = '${formatClock(local)} ${zone.label} (${formatClock(londonWall)} $londonZone di London)';
-    }
+    final userZone = userZoneLabel(_offsetFor(date));
+    final spotDate = DateTime(schedule.wall.year, schedule.wall.month, schedule.wall.day);
+    final spotClock = formatClock(schedule.wall);
+    final instant = gatheringInstantUtc(
+      diveDate: spotDate,
+      gatheringMinutes: schedule.wall.hour * 60 + schedule.wall.minute,
+      zone: schedule.zone,
+    );
+    final londonWall = utcToWall(TimeZoneId.london, instant);
+    final londonZone = zoneLabelAt(TimeZoneId.london, instant);
+    final userClock = '${_time.hour.toString().padLeft(2, '0')}.${_time.minute.toString().padLeft(2, '0')}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SummaryRow(label: 'Spot', value: spot.name),
-        _SummaryRow(label: 'Tanggal', value: formatDate(date)),
-        _SummaryRow(label: 'Jam kumpul', value: gatheringText),
+        _SummaryRow(label: 'Tanggal', value: formatDate(spotDate)),
+        _SummaryRow(label: 'Jam kumpul', value: '$spotClock ${schedule.zone.label} (di lokasi)'),
+        _SummaryRow(label: 'Jam di zonamu', value: '$userClock $userZone'),
+        _SummaryRow(label: 'Jam di London', value: '${formatClock(londonWall)} $londonZone'),
         _SummaryRow(label: 'Peserta', value: '$_people orang'),
         const Divider(height: 24),
         if (price == null)
@@ -399,9 +450,7 @@ class _BookingScreenState extends State<BookingScreen> {
             for (final code in priceCurrencyCodes.where((code) => code != 'IDR'))
               _SummaryRow(
                 label: currencyByCode(code).name,
-                value: waiting
-                    ? 'memuat'
-                    : _convertedText(rates, total, code),
+                value: waiting ? 'memuat' : _convertedText(rates, total, code),
               ),
             if (snapshot.hasError)
               InlineNotice(
@@ -433,7 +482,7 @@ class _SummaryRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 110, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          SizedBox(width: 120, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
           Expanded(child: Text(value)),
         ],
       ),

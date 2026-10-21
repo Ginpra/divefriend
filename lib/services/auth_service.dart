@@ -81,6 +81,18 @@ class AuthService {
     await prefs.remove(_sessionKey);
   }
 
+  /// Menghapus akun yang sedang login: barisnya di tabel pengguna, session, dan pengaturan biometriknya.
+  /// Data lain milik akun ini (logbook, booking, dan seterusnya) dihapus oleh AccountDeleter.
+  Future<void> deleteAccount() async {
+    final user = currentUser;
+    if (user == null) return;
+    await _users.delete(user.id);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_sessionKey);
+    if (prefs.getInt(_biometricKey) == user.id) await prefs.remove(_biometricKey);
+    currentUser = null;
+  }
+
   Future<void> setPhoto(String? photoPath) async {
     final user = currentUser;
     if (user == null) return;
