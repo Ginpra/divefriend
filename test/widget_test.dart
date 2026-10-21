@@ -49,6 +49,16 @@ Future<void> _login(WidgetTester tester, String username, String password) async
   await tester.pumpAndSettle();
 }
 
+/// Membuka menu Fitur lewat bottom navigation lalu memilih satu fitur.
+Future<void> _openFeature(WidgetTester tester, String name) async {
+  await tester.tap(
+    find.descendant(of: find.byType(NavigationBar), matching: find.text('Fitur')).first,
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(name));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('login kosong ditolak validasi', (tester) async {
     await _pumpApp(tester);
@@ -150,10 +160,7 @@ void main() {
     await _pumpApp(tester);
     await _login(tester, 'budi', 'password123');
 
-    await tester.tap(find.byTooltip('Open navigation menu'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Konversi'));
-    await tester.pumpAndSettle();
+    await _openFeature(tester, 'Konversi');
 
     expect(find.text('Kalkulator mata uang'), findsOneWidget);
     expect(_textOf(tester, 'currency_result'), '= IDR 1.803.100');
@@ -174,10 +181,7 @@ void main() {
     );
     await _login(tester, 'budi', 'password123');
 
-    await tester.tap(find.byTooltip('Open navigation menu'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Konversi'));
-    await tester.pumpAndSettle();
+    await _openFeature(tester, 'Konversi');
 
     expect(
       find.text('Tidak ada koneksi internet, data kurs belum bisa dimuat.'),
@@ -242,10 +246,7 @@ void main() {
     await _pumpApp(tester);
     await _login(tester, 'budi', 'password123');
 
-    await tester.tap(find.byTooltip('Open navigation menu'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Arah ke Spot'));
-    await tester.pumpAndSettle();
+    await _openFeature(tester, 'Arah ke Spot');
 
     expect(find.text('Pilih spot tujuan'), findsOneWidget);
     await tester.tap(find.text('Kepulauan Banda'));
@@ -273,10 +274,7 @@ void main() {
     await _pumpApp(tester);
     await _login(tester, 'budi', 'password123');
 
-    await tester.tap(find.byTooltip('Open navigation menu'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Logbook'));
-    await tester.pumpAndSettle();
+    await _openFeature(tester, 'Logbook');
 
     expect(find.text('Logbook masih kosong'), findsOneWidget);
   });

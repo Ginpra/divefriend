@@ -1,4 +1,5 @@
 import 'package:divefriend/data/models/app_user.dart';
+import 'package:divefriend/data/models/booking.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/data/models/exchange_rates.dart';
 import 'package:divefriend/data/models/geo_point.dart';
@@ -6,6 +7,7 @@ import 'package:divefriend/data/models/log_entry.dart';
 import 'package:divefriend/data/models/sea_conditions.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/data/remote/spot_remote_source.dart';
+import 'package:divefriend/data/repositories/booking_repository.dart';
 import 'package:divefriend/data/repositories/logbook_repository.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/data/repositories/user_repository.dart';
@@ -13,10 +15,12 @@ import 'package:divefriend/services/api_failure.dart';
 import 'package:divefriend/services/biometric_service.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/gemini_service.dart';
 import 'package:divefriend/services/location_service.dart';
 import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
+import 'package:divefriend/services/notification_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
 import 'package:divefriend/services/spot_sync_service.dart';
 
@@ -225,6 +229,9 @@ AppServices buildTestServices({
   LogbookService? logbook,
   SpotRemoteSource? spotRemote,
   List<Spot>? spots,
+  BookingRepository? bookings,
+  NotificationService? notifications,
+  GeminiService? gemini,
 }) {
   final spotRepository = InMemorySpotRepository(spots ?? const []);
   return AppServices(
@@ -237,6 +244,9 @@ AppServices buildTestServices({
     maps: maps ?? FakeMapLauncher(),
     logbook: logbook ?? LogbookService(InMemoryLogbookRepository()),
     sync: SpotSyncService(remote: spotRemote, local: spotRepository),
+    bookings: bookings ?? InMemoryBookingRepository(),
+    notifications: notifications ?? FakeNotificationService(),
+    gemini: gemini ?? FakeGeminiService(),
   );
 }
 
@@ -290,5 +300,87 @@ class FakeSpotRemoteSource implements SpotRemoteSource {
     final error = failure;
     if (error != null) throw error;
     return spots;
+  }
+}
+
+
+/// Pesanan di memori, dipakai tes agar tidak butuh SQLite asli.
+class InMemoryBookingRepository implements BookingRepository {
+  final List<Booking> _bookings = [];
+  int _nextId = 1;
+
+  @override
+  Future<int> add(Booking booking) async {
+    final id = _nextId++;
+    _bookings.add(
+      Booking(
+        id: id,
+        userId: booking.userId,
+        spotId: booking.spotId,
+        spotName: booking.spotName,
+        diveDate: booking.diveDate,
+        gatheringMinutes: booking.gatheringMinutes,
+        people: booking.people,
+        priceIdrPerPerson: booking.priceIdrPerPerson,
+        createdAt: booking.createdAt,
+      ),
+    );
+    return id;
+  }
+
+  @override
+  Future<List<Booking>> forUser(int userId) async {
+    return _bookings.where((booking) => booking.userId == userId).toList().reversed.toList();
+  }
+
+  @override
+  Future<void> delete({required int userId, required int id}) async {
+    _bookings.removeWhere((booking) => booking.userId == userId && booking.id == id);
+  }
+}
+
+/// Pengingat palsu: mencatat jadwal dan pembatalan yang diminta.
+class FakeNotificationService implements NotificationService {
+  FakeNotificationService({this.result = ReminderResult.scheduled});
+
+  final ReminderResult result;
+  final List<({int id, String title, DateTime at})> scheduled = [];
+  final List<int> cancelled = [];
+
+  @override
+  Future<ReminderResult> scheduleReminder({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime at,
+  }) async {
+    scheduled.add((id: id, title: title, at: at));
+    return result;
+  }
+
+  @override
+  Future<void> cancelReminder(int id) async {
+    cancelled.add(id);
+  }
+}
+
+/// Asisten AI palsu: menjawab dengan [answer] atau melempar [failure].
+class FakeGeminiService implements GeminiService {
+  FakeGeminiService({this.answer = 'Jawaban contoh', this.failure, this.configured = true});
+
+  final String answer;
+  final GeminiFailure? failure;
+  final bool configured;
+  final List<String> prompts = [];
+
+  @override
+  bool get isConfigured => configured;
+
+  @override
+  Future<String> reply(List<ChatTurn> history, {required String systemPrompt}) async {
+    prompts.add(systemPrompt);
+    final error = failure;
+    if (error != null) throw error;
+    return answer;
   }
 }

@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 /// Versi 1: tabel users. Versi 2: tabel spots + meta. Versi 4: struktur tabel spots dirapikan.
 /// Versi 5: tabel logbook (catatan penyelaman dengan hash chain, tidak pernah dihapus saat upgrade).
 /// Versi 6: kolom updated_at di logbook (waktu catatan terakhir diubah).
+/// Versi 7: tabel bookings (pesanan trip simulasi).
 /// Tabel spots hanyalah salinan dari data seed, jadi saat strukturnya berubah
 /// tabelnya dibuat ulang dan datanya dimuat lagi otomatis.
 class AppDatabase {
@@ -12,7 +13,7 @@ class AppDatabase {
 
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 6;
+  static const int _version = 7;
 
   Database? _database;
 
@@ -27,6 +28,7 @@ class AppDatabase {
         await _createUsersTable(db);
         await _createSpotTables(db);
         await _createLogbookTable(db);
+        await _createBookingTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -40,6 +42,9 @@ class AppDatabase {
           await _createLogbookTable(db);
         } else if (oldVersion < 6) {
           await db.execute('ALTER TABLE logbook ADD COLUMN updated_at TEXT');
+        }
+        if (oldVersion < 7) {
+          await _createBookingTable(db);
         }
       },
     );
@@ -63,6 +68,23 @@ class AppDatabase {
         hash TEXT NOT NULL,
         updated_at TEXT,
         PRIMARY KEY (user_id, seq)
+      )
+    ''');
+  }
+
+  /// Satu baris = satu pesanan trip simulasi milik satu pengguna.
+  static Future<void> _createBookingTable(Database db) {
+    return db.execute('''
+      CREATE TABLE bookings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        spot_id TEXT NOT NULL,
+        spot_name TEXT NOT NULL,
+        dive_date TEXT NOT NULL,
+        gathering_minutes INTEGER NOT NULL,
+        people INTEGER NOT NULL,
+        price_idr INTEGER NOT NULL,
+        created_at TEXT NOT NULL
       )
     ''');
   }

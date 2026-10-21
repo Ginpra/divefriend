@@ -7,7 +7,8 @@ import 'package:divefriend/core/widgets/level_badge.dart';
 import 'package:divefriend/core/widgets/spot_photo_view.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/direction/direction_screen.dart';
-import 'package:divefriend/features/shared/placeholder_screen.dart';
+import 'package:divefriend/features/booking/booking_screen.dart';
+import 'package:divefriend/features/map/spot_map_screen.dart';
 import 'package:divefriend/features/spot/gathering_time_card.dart';
 import 'package:divefriend/features/spot/price_card.dart';
 import 'package:divefriend/features/spot/sea_conditions_card.dart';
@@ -51,10 +52,18 @@ class SpotDetailScreen extends StatelessWidget {
     );
   }
 
-  void _openPlaceholder(BuildContext context, String title, int stage) {
+  void _openBooking(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => PlaceholderScreen(title: title, stage: stage),
+        builder: (_) => BookingScreen(services: services, spot: spot),
+      ),
+    );
+  }
+
+  void _openMap(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SpotMapScreen(services: services, initialSpot: spot),
       ),
     );
   }
@@ -156,8 +165,16 @@ class SpotDetailScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => _openMap(context),
+                    child: const Text('Lihat di peta'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
                   child: FilledButton(
-                    onPressed: () => _openPlaceholder(context, 'Booking', 8),
+                    onPressed: () => _openBooking(context),
                     child: const Text('Booking'),
                   ),
                 ),

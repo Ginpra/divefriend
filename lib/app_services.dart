@@ -1,10 +1,13 @@
+import 'package:divefriend/data/repositories/booking_repository.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/gemini_service.dart';
 import 'package:divefriend/services/location_service.dart';
 import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
+import 'package:divefriend/services/notification_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
 import 'package:divefriend/services/spot_sync_service.dart';
 
@@ -21,6 +24,9 @@ class AppServices {
     required this.maps,
     required this.logbook,
     required this.sync,
+    required this.bookings,
+    required this.notifications,
+    required this.gemini,
   });
 
   final SpotRepository spots;
@@ -32,4 +38,7 @@ class AppServices {
   final MapLauncher maps;
   final LogbookService logbook;
   final SpotSyncService sync;
+  final BookingRepository bookings;
+  final NotificationService notifications;
+  final GeminiService gemini;
 }

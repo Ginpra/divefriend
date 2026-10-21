@@ -5,7 +5,6 @@ import 'package:divefriend/core/widgets/disclaimer_banner.dart';
 import 'package:divefriend/core/widgets/state_message.dart';
 import 'package:divefriend/data/models/spot.dart';
 import 'package:divefriend/features/home/spot_card.dart';
-import 'package:divefriend/features/navigation/app_drawer.dart';
 import 'package:divefriend/features/spot/spot_detail_screen.dart';
 import 'package:divefriend/services/spot_sync_service.dart';
 
@@ -107,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: AppDrawer(services: widget.services),
       body: Column(
         children: [
           const DisclaimerBanner(),

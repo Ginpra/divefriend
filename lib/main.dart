@@ -7,16 +7,19 @@ import 'package:divefriend/config/secrets.dart';
 import 'package:divefriend/data/local/app_database.dart';
 import 'package:divefriend/data/remote/spot_remote_source.dart';
 import 'package:divefriend/data/remote/supabase_config.dart';
+import 'package:divefriend/data/repositories/sqlite_booking_repository.dart';
 import 'package:divefriend/data/repositories/sqlite_logbook_repository.dart';
 import 'package:divefriend/data/repositories/sqlite_spot_repository.dart';
 import 'package:divefriend/data/repositories/sqlite_user_repository.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/biometric_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
+import 'package:divefriend/services/gemini_service.dart';
 import 'package:divefriend/services/location_service.dart';
 import 'package:divefriend/services/logbook_service.dart';
 import 'package:divefriend/services/map_launcher.dart';
 import 'package:divefriend/services/marine_service.dart';
+import 'package:divefriend/services/notification_service.dart';
 import 'package:divefriend/services/sensor_service.dart';
 import 'package:divefriend/services/spot_sync_service.dart';
 
@@ -47,6 +50,9 @@ Future<void> main() async {
     maps: UrlMapLauncher(),
     logbook: LogbookService(SqliteLogbookRepository(AppDatabase.instance)),
     sync: SpotSyncService(remote: spotRemote, local: spotRepository),
+    bookings: SqliteBookingRepository(AppDatabase.instance),
+    notifications: LocalNotificationService(),
+    gemini: HttpGeminiService(httpClient, apiKey: Secrets.geminiApiKey),
   );
 
   // Kalau session masih ada, langsung ke Beranda tanpa login ulang.

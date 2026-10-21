@@ -46,8 +46,7 @@ class SyncResult {
 /// utuh supaya aplikasi tetap jalan saat offline. Daftar kosong dari server tidak pernah dipakai
 /// untuk menghapus data lokal.
 class SpotSyncService {
-  SpotSyncService({required this._remote, required SpotRepository local})
-      : _local = local;
+  SpotSyncService({required this._remote, required this._local});
 
   final SpotRemoteSource? _remote;
   final SpotRepository _local;

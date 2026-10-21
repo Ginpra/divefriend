@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
 import 'package:divefriend/features/auth/register_screen.dart';
-import 'package:divefriend/features/home/home_screen.dart';
+import 'package:divefriend/features/navigation/main_shell.dart';
 import 'package:divefriend/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _goHome() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => HomeScreen(services: widget.services),
+        builder: (_) => MainShell(services: widget.services),
       ),
     );
   }
