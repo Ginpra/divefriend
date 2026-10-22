@@ -26,7 +26,9 @@ void main() {
   });
 
   test('tujuan rute tidak memakai titik pusat kawasan yang ada di laut', () {
-    for (final spot in spotsSeed) {
+    // Tulamben ada di pantai daratan Bali, jadi titik pusatnya memang bisa dirutekan lewat jalan darat.
+    const landSpotIds = {'tulamben'};
+    for (final spot in spotsSeed.where((spot) => !landSpotIds.contains(spot.id))) {
       final accessPoint = accessPointsBySpotId[spot.id]!;
       final centerPoint = '${spot.latitude},${spot.longitude}';
       expect(accessPoint.mapsQuery, isNot(centerPoint), reason: '${spot.id}: tujuan sama dengan titik pusat spot');

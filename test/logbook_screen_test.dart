@@ -61,6 +61,7 @@ void main() {
   });
 
   testWidgets('catatan tampil dengan yang terbaru di atas', (tester) async {
+    _useTallScreen(tester);
     await _pumpLogbook(tester, prefilledEntries: 2);
 
     expect(find.text('Penyelaman #1'), findsOneWidget);
@@ -85,6 +86,7 @@ void main() {
   });
 
   testWidgets('Cek Integritas mendeteksi catatan yang dipalsukan', (tester) async {
+    _useTallScreen(tester);
     await _pumpLogbook(tester, prefilledEntries: 2);
     await tester.runAsync(() => _logbook.simulateTampering(_userId));
 
@@ -99,6 +101,7 @@ void main() {
   });
 
   testWidgets('menu demo: simulasi pemalsuan lalu pulihkan', (tester) async {
+    _useTallScreen(tester);
     await _pumpLogbook(tester, prefilledEntries: 2);
 
     await tester.tap(find.byTooltip('Menu demo'));
@@ -158,8 +161,9 @@ void main() {
 
     expect(find.text('Penyelaman #1'), findsOneWidget);
     expect(find.text('Kepulauan Banda'), findsOneWidget);
-    expect(find.text('18 m'), findsOneWidget);
-    expect(find.text('45 menit'), findsOneWidget);
+    // Angka yang sama tampil dua kali: di kartu Ringkasan (Terdalam, Total waktu) dan di kartu catatan.
+    expect(find.text('18 m'), findsNWidgets(2));
+    expect(find.text('45 menit'), findsNWidgets(2));
     expect(find.text('Arus tenang'), findsOneWidget);
     expect(find.text('Logbook masih kosong'), findsNothing);
 
@@ -196,7 +200,8 @@ void main() {
     await tester.tap(find.byKey(const Key('save_entry')));
     await tester.pumpAndSettle();
 
-    expect(find.text('33 m'), findsOneWidget);
+    // Satu di kartu Ringkasan (Terdalam), satu di kartu catatan.
+    expect(find.text('33 m'), findsNWidgets(2));
     expect(find.byKey(const Key('updated_label')), findsOneWidget);
     final saved = await tester.runAsync(() => _logbook.entries(_userId));
     expect(saved!.first.maxDepthM, 33);

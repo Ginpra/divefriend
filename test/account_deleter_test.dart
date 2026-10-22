@@ -11,6 +11,8 @@ import 'package:divefriend/services/feedback_store.dart';
 import 'package:divefriend/services/quiz_score_store.dart';
 import 'fakes.dart';
 
+AuthService _newAuth() => AuthService(InMemoryUserRepository(), FakeBiometric());
+
 Booking _booking(int userId) {
   return Booking(
     userId: userId,
@@ -36,7 +38,7 @@ void main() {
 
   test('hapus akun menghapus semua data milik akun itu dan tidak menyentuh akun lain', () async {
     final notifications = FakeNotificationService();
-    final services = buildTestServices(notifications: notifications);
+    final services = buildTestServices(auth: _newAuth(), notifications: notifications);
     final feedback = FeedbackStore();
     final scores = QuizScoreStore();
     final biota = BiotaStore();
@@ -84,13 +86,13 @@ void main() {
   });
 
   test('tanpa akun yang login, hapus akun tidak melakukan apa-apa', () async {
-    final services = buildTestServices();
+    final services = buildTestServices(auth: _newAuth());
     await AccountDeleter(services).deleteCurrentAccount();
     expect(services.auth.currentUser, isNull);
   });
 
   test('biometrik milik akun yang dihapus ikut dibersihkan', () async {
-    final services = buildTestServices();
+    final services = buildTestServices(auth: _newAuth());
     await _register(services, 'budi');
     await services.auth.login('budi', 'password123');
     expect(await services.auth.enableBiometric(), isTrue);

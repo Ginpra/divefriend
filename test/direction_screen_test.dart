@@ -69,6 +69,7 @@ void main() {
 
     expect(_textOf(tester, 'direction_distance'), '111 km');
     expect(_textOf(tester, 'direction_bearing'), 'Arah ke spot: 180° (S)');
+    await tester.scrollUntilVisible(find.textContaining('titik pusat kawasan, bukan titik selam'), 200);
     expect(find.textContaining('titik pusat kawasan, bukan titik selam'), findsOneWidget);
   });
 

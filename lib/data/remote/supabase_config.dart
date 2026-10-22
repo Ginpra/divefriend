@@ -10,7 +10,7 @@ class SupabaseConfig {
   /// False kalau secrets.dart belum diisi (masih berisi tulisan ISI_DI_SECRETS_DART).
   bool get isConfigured => url.startsWith('https://') && apiKey.isNotEmpty && !apiKey.startsWith('ISI_');
 
-  /// Alamat dasar REST API: https://<project>.supabase.co/rest/v1
+  /// Alamat dasar REST API: `https://<project>.supabase.co/rest/v1`
   String get restBase {
     final trimmed = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
     return '$trimmed/rest/v1';
