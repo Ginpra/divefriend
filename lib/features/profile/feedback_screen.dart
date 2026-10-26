@@ -96,7 +96,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           ),
           Expanded(
             child: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset(context)),
         children: [
           Form(
             key: _formKey,

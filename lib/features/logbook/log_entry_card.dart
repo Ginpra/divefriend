@@ -39,14 +39,16 @@ class LogEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isBroken ? Colors.red.shade700 : const Color(0x330B2545);
+    final borderColor = isBroken ? Colors.red.shade700 : AppColors.line;
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpace.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF2),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: borderColor, width: isBroken ? 2 : 1),
+        boxShadow: AppShadows.soft,
       ),
+      clipBehavior: Clip.antiAlias,
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,13 +56,12 @@ class LogEntryCard extends StatelessWidget {
             Container(
               width: 8,
               decoration: BoxDecoration(
-                color: isBroken ? Colors.red.shade700 : AppColors.teal,
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                color: isBroken ? Colors.red.shade700 : AppColors.tealDeep,
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpace.lg),
                 child: _buildContent(),
               ),
             ),
@@ -80,10 +81,10 @@ class LogEntryCard extends StatelessWidget {
             Expanded(
               child: Text(
                 'Penyelaman #${entry.seq}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontFamily: AppFonts.heading, fontSize: 18, color: AppColors.navy),
               ),
             ),
-            Text(formatDisplayDate(entry.diveDate)),
+            Text(formatDisplayDate(entry.diveDate), style: const TextStyle(color: AppColors.textMuted)),
           ],
         ),
         const SizedBox(height: 2),
@@ -169,7 +170,7 @@ class _Fact extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: AppColors.teal),
+        Icon(icon, size: 16, color: AppColors.tealDeep),
         const SizedBox(width: 4),
         Text(text),
       ],

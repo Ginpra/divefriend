@@ -293,6 +293,10 @@ void main() {
 
 /// Login lalu buka Detail Spot Kepulauan Banda (WIT, harga simulasi 3.000.000 rupiah).
 Future<void> _openBandaDetail(WidgetTester tester) async {
+  // Layar uji dibuat tinggi supaya kartu spot tidak jatuh di luar layar 800x600 bawaan.
+  tester.view.physicalSize = const Size(800, 3600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
   await _login(tester, 'budi', 'password123');
   await tester.ensureVisible(find.text('Kepulauan Banda'));
   await tester.tap(find.text('Kepulauan Banda'));

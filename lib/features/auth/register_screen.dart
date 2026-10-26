@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
 import 'package:divefriend/services/auth_service.dart';
@@ -63,7 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Daftar')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset(context)),
         child: Form(
           key: _formKey,
           child: Column(

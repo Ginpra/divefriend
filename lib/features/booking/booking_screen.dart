@@ -226,7 +226,9 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Booking Trip')),
-      body: Stepper(
+      body: SafeArea(
+        top: false,
+        child: Stepper(
         currentStep: _step,
         controlsBuilder: _buildControls,
         steps: [
@@ -246,6 +248,7 @@ class _BookingScreenState extends State<BookingScreen> {
             content: _buildStepThree(),
           ),
         ],
+      ),
       ),
     );
   }

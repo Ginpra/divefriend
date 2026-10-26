@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/features/converter/currency_converter_card.dart';
 import 'package:divefriend/features/converter/time_converter_card.dart';
@@ -15,7 +17,7 @@ class ConverterScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Konversi')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset(context)),
         children: [
           CurrencyConverterCard(rates: services.rates),
           const TimeConverterCard(),

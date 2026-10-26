@@ -122,7 +122,7 @@ class SpotDetailScreen extends StatelessWidget {
 
     return Scaffold(
       body: ListView(
-        padding: EdgeInsets.zero,
+        padding: EdgeInsets.only(bottom: AppSpace.lg + bottomInset(context)),
         children: [
           Stack(
             children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/core/currencies.dart';
 import 'package:divefriend/core/formatters.dart';
 import 'package:divefriend/core/widgets/inline_notice.dart';
@@ -56,6 +57,15 @@ class _CurrencyConverterCardState extends State<CurrencyConverterCard> {
     });
   }
 
+  /// Menukar mata uang asal dan tujuan.
+  void _swap() {
+    setState(() {
+      final previousFrom = _from;
+      _from = _to;
+      _to = previousFrom;
+    });
+  }
+
   /// Menerima koma atau titik sebagai pemisah desimal. Null kalau bukan angka.
   double? get _amount {
     return double.tryParse(_amountController.text.trim().replaceAll(',', '.'));
@@ -83,7 +93,14 @@ class _CurrencyConverterCardState extends State<CurrencyConverterCard> {
           const SizedBox(height: 12),
           const Text('Dari', style: TextStyle(fontWeight: FontWeight.w600)),
           _CurrencyChips(selected: _from, onSelected: _selectFrom),
-          const SizedBox(height: 8),
+          Align(
+            child: IconButton(
+              key: const Key('swap_currency'),
+              tooltip: 'Tukar mata uang',
+              onPressed: _swap,
+              icon: const Icon(Icons.swap_vert_rounded, color: AppColors.tealDeep),
+            ),
+          ),
           const Text('Ke', style: TextStyle(fontWeight: FontWeight.w600)),
           _CurrencyChips(selected: _to, onSelected: _selectTo),
           const Divider(height: 28),
@@ -129,22 +146,35 @@ class _CurrencyConverterCardState extends State<CurrencyConverterCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          formatMoney(amount, currencyByCode(_from)),
-          style: const TextStyle(fontSize: 14),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpace.lg),
+          decoration: BoxDecoration(
+            gradient: AppGradients.deepSea,
+            borderRadius: BorderRadius.circular(AppRadius.field + 4),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                formatMoney(amount, currencyByCode(_from)),
+                style: const TextStyle(fontSize: 14, color: AppColors.mintSoft),
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text(
+                '= ${formatMoney(converted, currencyByCode(_to))}',
+                key: const Key('currency_result'),
+                style: const TextStyle(fontFamily: AppFonts.heading, fontSize: 28, color: Colors.white),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          '= ${formatMoney(converted, currencyByCode(_to))}',
-          key: const Key('currency_result'),
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpace.sm),
         Text(
           'Kurs acuan Frankfurter (data Bank Sentral Eropa), tanggal ${rates.date}. '
           'Kurs diperbarui setiap hari kerja, jadi bisa berbeda dengan kurs di tempat penukaran.',
           textAlign: TextAlign.justify,
-          style: const TextStyle(fontSize: 11, height: 1.35),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

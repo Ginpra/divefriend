@@ -124,28 +124,48 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
+  /// Pesan penutup menurut skor, supaya hasil terasa seperti penilaian bukan sekadar angka.
+  String _verdict(int total) {
+    final ratio = total == 0 ? 0 : _score / total;
+    if (ratio >= 0.8) return 'Penyelam sejati! Pengetahuan biotamu sudah mantap.';
+    if (ratio >= 0.5) return 'Lumayan. Makin sering menyelam, makin hafal biotanya.';
+    return 'Ayo coba lagi, tiap putaran soalnya diacak ulang.';
+  }
+
   Widget _buildResult(int total) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpace.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.emoji_events_outlined, size: 64, color: AppColors.orange),
-            const SizedBox(height: 12),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: const BoxDecoration(gradient: AppGradients.deepSea, shape: BoxShape.circle),
+              child: const Icon(Icons.emoji_events_outlined, size: 60, color: AppColors.mint),
+            ),
+            const SizedBox(height: AppSpace.lg),
             Text(
               'Skormu $_score dari $total',
               key: const Key('quiz_result'),
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: AppFonts.heading, fontSize: 28, color: AppColors.navy),
             ),
-            if (_newRecord) const Text('Rekor baru!'),
-            const SizedBox(height: 8),
-            const Text(
+            if (_newRecord)
+              const Padding(
+                padding: EdgeInsets.only(top: AppSpace.sm),
+                child: Text('Rekor baru!', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tealDeep)),
+              ),
+            const SizedBox(height: AppSpace.sm),
+            Text(_verdict(total), textAlign: TextAlign.center),
+            const SizedBox(height: AppSpace.sm),
+            Text(
               'Jawaban mengacu pada daftar biota di data spot DiveFriend.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpace.xl),
             FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Selesai')),
           ],
         ),
@@ -156,37 +176,58 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildQuestion(List<QuizQuestion> questions) {
     final question = questions[_index];
     final isLast = _index + 1 >= questions.length;
+    final urgent = _secondsLeft <= 5;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.lg, AppSpace.lg, AppSpace.lg + bottomInset(context)),
       children: [
         Row(
           children: [
-            Text('Soal ${_index + 1} dari ${questions.length}'),
+            Text('Soal ${_index + 1} dari ${questions.length}', style: Theme.of(context).textTheme.titleSmall),
             const Spacer(),
-            Icon(Icons.timer_outlined, size: 18, color: _secondsLeft <= 5 ? Colors.red : AppColors.navy),
-            const SizedBox(width: 4),
-            Text('$_secondsLeft', key: const Key('quiz_seconds'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: urgent ? const Color(0xFFFFE1DE) : AppColors.mintSoft,
+                borderRadius: BorderRadius.circular(AppRadius.chip),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.timer_outlined, size: 16, color: urgent ? const Color(0xFFB3261E) : AppColors.tealDeep),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$_secondsLeft',
+                    key: const Key('quiz_seconds'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: urgent ? const Color(0xFFB3261E) : AppColors.tealDeep,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 8),
-        LinearProgressIndicator(value: _secondsLeft / _secondsPerQuestion),
-        const SizedBox(height: 20),
-        Text(
-          question.prompt,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+        const SizedBox(height: AppSpace.sm),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(minHeight: 8, value: _secondsLeft / _secondsPerQuestion),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpace.xl),
+        Text(question.prompt, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: AppSpace.lg),
         for (var i = 0; i < question.options.length; i++) _buildOption(question, i),
         if (_answered) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.sm),
           Text(
             _chosen == -1
                 ? 'Waktu habis. Jawabannya ${question.correctAnswer}.'
                 : (_chosen == question.correctIndex
                     ? 'Benar!'
                     : 'Kurang tepat. Jawabannya ${question.correctAnswer}.'),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.md),
           FilledButton(
             onPressed: _next,
             child: Text(isLast ? 'Lihat skor' : 'Soal berikutnya'),
@@ -197,30 +238,53 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Widget _buildOption(QuizQuestion question, int index) {
-    Color? color;
+    const letters = ['A', 'B', 'C', 'D'];
+    var background = AppColors.surface;
+    var border = const Color(0x4D0B2545);
+    IconData? mark;
     if (_answered) {
       if (index == question.correctIndex) {
-        color = const Color(0xFFC8E6C9);
+        background = const Color(0xFFC8E6C9);
+        border = const Color(0xFF2E7D32);
+        mark = Icons.check_circle;
       } else if (index == _chosen) {
-        color = const Color(0xFFFFCDD2);
+        background = const Color(0xFFFFCDD2);
+        border = const Color(0xFFB3261E);
+        mark = Icons.cancel;
       }
     }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppSpace.sm),
       child: Material(
-        color: color ?? Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: background,
+        borderRadius: BorderRadius.circular(AppRadius.field),
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.field),
           onTap: _answered ? null : () => _answer(index),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md, vertical: AppSpace.md),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x330B2545)),
+              borderRadius: BorderRadius.circular(AppRadius.field),
+              border: Border.all(color: border),
             ),
-            child: Text(question.options[index], style: const TextStyle(fontSize: 16)),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(color: AppColors.mintSoft, shape: BoxShape.circle),
+                  child: Text(
+                    index < letters.length ? letters[index] : '${index + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.tealDeep),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.md),
+                Expanded(child: Text(question.options[index], style: const TextStyle(fontSize: 16))),
+                if (mark != null) Icon(mark, color: border),
+              ],
+            ),
           ),
         ),
       ),

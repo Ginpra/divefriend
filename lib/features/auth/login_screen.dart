@@ -91,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: bottomInset(context)),
         child: Column(
           children: [
             Stack(

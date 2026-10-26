@@ -32,6 +32,10 @@ class AppRadius {
   static const double sheet = 32;
 }
 
+/// Tinggi bar navigasi sistem di bawah layar (tiga tombol atau garis gestur). Ditambahkan ke jarak
+/// bawah daftar yang bisa digulir supaya isi terakhir tidak tertutup tombol HP.
+double bottomInset(BuildContext context) => MediaQuery.paddingOf(context).bottom;
+
 /// Jarak berpola kelipatan 4.
 class AppSpace {
   static const double xs = 4;

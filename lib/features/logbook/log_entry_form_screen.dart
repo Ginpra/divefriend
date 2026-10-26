@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/validators.dart';
 import 'package:divefriend/core/widgets/section_card.dart';
@@ -151,7 +153,7 @@ class _LogEntryFormScreenState extends State<LogEntryFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset(context)),
           children: [
             const SectionCard(
               icon: Icons.link,

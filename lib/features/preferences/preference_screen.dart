@@ -85,7 +85,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
   Widget _buildForm() {
     return ListView(
-      padding: const EdgeInsets.all(AppSpace.lg),
+      padding: EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.lg, AppSpace.lg, AppSpace.lg + bottomInset(context)),
       children: [
         const Text(
           'Jawab lima pertanyaan singkat dan pilih minatmu. Model klasifikasi di dalam aplikasi '
@@ -218,7 +218,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
         ? ''
         : prediction.neighborLevels.map((level) => level.label).join(', ');
     return ListView(
-      padding: const EdgeInsets.all(AppSpace.xl),
+      padding: EdgeInsets.fromLTRB(AppSpace.xl, AppSpace.xl, AppSpace.xl, AppSpace.xl + bottomInset(context)),
       children: [
         const SizedBox(height: AppSpace.lg),
         const Center(

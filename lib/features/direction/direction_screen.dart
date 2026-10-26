@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/geo_math.dart';
 import 'package:divefriend/core/widgets/inline_notice.dart';
@@ -111,7 +113,7 @@ class _DirectionScreenState extends State<DirectionScreen> {
               message: 'Spot ini belum punya koordinat, jadi arah dan jarak belum bisa dihitung.',
             )
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset(context)),
               children: [
                 SectionCard(
                   icon: Icons.explore,

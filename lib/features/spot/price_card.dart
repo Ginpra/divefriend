@@ -42,7 +42,7 @@ class _PriceCardState extends State<PriceCard> {
     final priceIdr = widget.spot.priceEstimateIdr;
     return SectionCard(
       icon: Icons.sell_outlined,
-      title: 'Paket selam per orang',
+      title: 'Paket selam',
       badge: 'Harga simulasi',
       // FutureBuilder selalu dipasang (walau harga kosong) supaya error kurs ikut tertangani.
       child: FutureBuilder<ExchangeRates>(

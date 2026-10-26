@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/log_chain.dart';
 import 'package:divefriend/core/log_stats.dart';
@@ -212,7 +214,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
   Widget _buildList(List<LogEntry> entries) {
     final brokenSeq = _report?.brokenSeq;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 96 + bottomInset(context)),
       children: [
         if (entries.isNotEmpty) _buildStatsCard(entries),
         _buildIntegrityCard(),

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:divefriend/core/encounter_grade.dart';
 import 'package:divefriend/data/models/spot.dart';
 
 /// Satu soal kuis pilihan ganda.
@@ -20,10 +21,17 @@ class QuizQuestion {
 
 /// Satu biota beserta spot asalnya, dipakai fitur goyang biota hari ini.
 class BiotaPick {
-  const BiotaPick({required this.name, required this.spotName});
+  const BiotaPick({
+    required this.name,
+    required this.spotName,
+    this.grade = EncounterGrade.biasa,
+  });
 
   final String name;
   final String spotName;
+
+  /// Grade undian ini, ditentukan keberuntungan (lihat core/encounter_grade.dart).
+  final EncounterGrade grade;
 }
 
 /// Isian daftar biota yang bukan hewan atau tumbuhan tunggal, tidak cocok jadi jawaban kuis.
@@ -104,5 +112,6 @@ BiotaPick? pickRandomBiota(List<Spot> spots, {Random? random}) {
       for (final name in _usableBiota(spot)) BiotaPick(name: name, spotName: spot.name),
   ];
   if (all.isEmpty) return null;
-  return all[rng.nextInt(all.length)];
+  final chosen = all[rng.nextInt(all.length)];
+  return BiotaPick(name: chosen.name, spotName: chosen.spotName, grade: rollGrade(rng));
 }
