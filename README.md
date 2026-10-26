@@ -27,4 +27,6 @@ class Secrets {
   static const String supabaseUrl = 'supabase url';
   static const String supabaseAnonKey = 'supabase anon key';
   static const String geminiApiKey = 'api key gemini';
+  static const String sepoliaRpcUrl = '';
+  static const String sepoliaPrivateKey = '';
 }
