@@ -1,6 +1,7 @@
 import 'package:divefriend/data/repositories/booking_repository.dart';
 import 'package:divefriend/data/repositories/spot_repository.dart';
 import 'package:divefriend/services/auth_service.dart';
+import 'package:divefriend/services/blockchain_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
 import 'package:divefriend/services/gemini_service.dart';
 import 'package:divefriend/services/location_service.dart';
@@ -27,6 +28,7 @@ class AppServices {
     required this.bookings,
     required this.notifications,
     required this.gemini,
+    this.blockchain,
   });
 
   final SpotRepository spots;
@@ -41,4 +43,7 @@ class AppServices {
   final BookingRepository bookings;
   final NotificationService notifications;
   final GeminiService gemini;
+
+  /// Pintu ke blockchain untuk fitur jangkar logbook. Boleh kosong, fitur lain tidak bergantung padanya.
+  final BlockchainService? blockchain;
 }

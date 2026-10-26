@@ -8,6 +8,7 @@ import 'package:divefriend/core/log_stats.dart';
 import 'package:divefriend/core/widgets/section_card.dart';
 import 'package:divefriend/core/widgets/state_message.dart';
 import 'package:divefriend/data/models/log_entry.dart';
+import 'package:divefriend/features/logbook/anchor_screen.dart';
 import 'package:divefriend/features/logbook/log_entry_card.dart';
 import 'package:divefriend/features/logbook/log_entry_form_screen.dart';
 import 'package:divefriend/services/logbook_service.dart';
@@ -173,6 +174,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
       appBar: AppBar(
         title: const Text('Logbook'),
         actions: [
+          IconButton(
+            tooltip: 'Bukti blockchain',
+            icon: const Icon(Icons.link),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => AnchorScreen(services: widget.services)),
+            ),
+          ),
           PopupMenuButton<String>(
             tooltip: 'Menu demo',
             onSelected: _onMenuSelected,

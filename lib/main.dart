@@ -13,6 +13,7 @@ import 'package:divefriend/data/repositories/sqlite_spot_repository.dart';
 import 'package:divefriend/data/repositories/sqlite_user_repository.dart';
 import 'package:divefriend/services/auth_service.dart';
 import 'package:divefriend/services/biometric_service.dart';
+import 'package:divefriend/services/blockchain_service.dart';
 import 'package:divefriend/services/exchange_rate_service.dart';
 import 'package:divefriend/services/gemini_service.dart';
 import 'package:divefriend/services/location_service.dart';
@@ -53,6 +54,11 @@ Future<void> main() async {
     bookings: SqliteBookingRepository(AppDatabase.instance),
     notifications: LocalNotificationService(),
     gemini: HttpGeminiService(httpClient, apiKey: Secrets.geminiApiKey),
+    blockchain: SepoliaBlockchainService(
+      httpClient,
+      rpcUrl: Secrets.sepoliaRpcUrl,
+      privateKeyHex: Secrets.sepoliaPrivateKey,
+    ),
   );
 
   // Kalau session masih ada, langsung ke Beranda tanpa login ulang.

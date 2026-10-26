@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:divefriend/app_services.dart';
+import 'package:divefriend/services/anchor_store.dart';
 import 'package:divefriend/services/biota_store.dart';
 import 'package:divefriend/services/feedback_store.dart';
 import 'package:divefriend/services/preference_store.dart';
@@ -16,7 +17,9 @@ class AccountDeleter {
     QuizScoreStore? scores,
     BiotaStore? biota,
     PreferenceStore? preferences,
-  })  : _preferences = preferences ?? PreferenceStore(),
+    AnchorStore? anchors,
+  })  : _anchors = anchors ?? AnchorStore(),
+        _preferences = preferences ?? PreferenceStore(),
         _feedback = feedback ?? FeedbackStore(),
         _scores = scores ?? QuizScoreStore(),
         _biota = biota ?? BiotaStore();
@@ -26,6 +29,7 @@ class AccountDeleter {
   final QuizScoreStore _scores;
   final BiotaStore _biota;
   final PreferenceStore _preferences;
+  final AnchorStore _anchors;
 
   Future<void> deleteCurrentAccount() async {
     final user = _services.auth.currentUser;
@@ -47,6 +51,7 @@ class AccountDeleter {
     await _scores.clear(userId);
     await _biota.clear(userId);
     await _preferences.clear(userId);
+    await _anchors.clear(userId);
 
     final photoPath = user.photoPath;
     if (photoPath != null) {

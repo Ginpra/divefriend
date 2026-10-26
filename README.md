@@ -20,6 +20,7 @@ flutter pub add sqflite path path_provider crypto shared_preferences image_picke
 flutter pub add http
 flutter pub add sensors_plus geolocator url_launcher
 flutter pub add flutter_map latlong2 flutter_local_notifications timezone
+flutter pub add web3dart
 
 buat file di lib > config > secrets.dart isinya = 
 class Secrets {
