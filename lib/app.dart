@@ -4,6 +4,7 @@ import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
 import 'package:divefriend/features/auth/login_screen.dart';
 import 'package:divefriend/features/navigation/main_shell.dart';
+import 'package:divefriend/features/splash/splash_screen.dart';
 
 /// Widget akar aplikasi. Dipisah dari main.dart supaya tes bisa memakainya tanpa ikut memuat
 /// lib/config/secrets.dart (file rahasia yang tidak ikut di-commit).
@@ -23,9 +24,11 @@ class DiveFriendApp extends StatelessWidget {
       title: 'DiveFriend',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: startLoggedIn
-          ? MainShell(services: services)
-          : LoginScreen(services: services),
+      home: SplashScreen(
+        next: (context) => startLoggedIn
+            ? MainShell(services: services)
+            : LoginScreen(services: services),
+      ),
     );
   }
 }

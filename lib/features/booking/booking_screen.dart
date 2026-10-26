@@ -254,13 +254,15 @@ class _BookingScreenState extends State<BookingScreen> {
     final isLast = _step == 2;
     return Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: Row(
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           FilledButton(
             onPressed: _saving ? null : _next,
             child: Text(isLast ? 'Konfirmasi booking' : 'Lanjut'),
           ),
-          const SizedBox(width: 8),
           if (_step > 0)
             TextButton(onPressed: _saving ? null : _back, child: const Text('Kembali')),
         ],
@@ -482,7 +484,7 @@ class _SummaryRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 120, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          SizedBox(width: 132, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
           Expanded(child: Text(value)),
         ],
       ),

@@ -1,12 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import 'package:divefriend/core/app_theme.dart';
+import 'package:divefriend/core/widgets/ocean_decor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/features/auth/login_screen.dart';
+import 'package:divefriend/features/preferences/preference_screen.dart';
+import 'package:divefriend/features/preferences/user_level_badge.dart';
+import 'package:divefriend/services/preference_store.dart';
 import 'package:divefriend/services/account_deleter.dart';
 
 /// Profil: foto (dipilih dari galeri, disimpan di folder app, path-nya di SQLite)
@@ -23,11 +29,31 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
+  UserPreference? _preference;
 
   @override
   void initState() {
     super.initState();
     _loadBiometricState();
+    _loadPreference();
+  }
+
+  Future<void> _loadPreference() async {
+    final user = widget.services.auth.currentUser;
+    if (user == null) return;
+    final loaded = await PreferenceStore().load(user.id);
+    if (!mounted) return;
+    setState(() => _preference = loaded);
+  }
+
+  Future<void> _openPreferences() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => PreferenceScreen(services: widget.services),
+      ),
+    );
+    if (!mounted) return;
+    await _loadPreference();
   }
 
   Future<void> _loadBiometricState() async {
@@ -131,59 +157,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final photoPath = user?.photoPath;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.zero,
         children: [
-          Center(
-            child: ClipOval(
-              child: SizedBox(
-                width: 120,
-                height: 120,
-                child: photoPath == null
-                    ? const _PhotoPlaceholder()
-                    : Image.file(
-                        File(photoPath),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const _PhotoPlaceholder(),
-                      ),
-              ),
+          OceanHeader(
+            child: Column(
+              children: [
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Profil',
+                    style: TextStyle(
+                      fontFamily: AppFonts.heading,
+                      fontSize: 22,
+                      color: AppColors.mint,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpace.lg),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: ClipOval(
+                    child: SizedBox(
+                      width: 112,
+                      height: 112,
+                      child: photoPath == null
+                          ? const _PhotoPlaceholder()
+                          : Image.file(
+                              File(photoPath),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const _PhotoPlaceholder(),
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpace.md),
+                Text(
+                  user?.name ?? '-',
+                  style: const TextStyle(
+                    fontFamily: AppFonts.heading,
+                    fontSize: 26,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  '@${user?.username ?? '-'}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                if (_preference != null) ...[
+                  const SizedBox(height: AppSpace.md),
+                  UserLevelBadge(level: _preference!.level, onDark: true),
+                ],
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              user?.name ?? '-',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(AppSpace.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FilledButton.icon(
+                  onPressed: _pickPhoto,
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text('Ganti foto'),
+                ),
+                const SizedBox(height: AppSpace.xl),
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.lg,
+                      vertical: AppSpace.xs,
+                    ),
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.mintSoft,
+                      child: Icon(Icons.auto_awesome, color: AppColors.tealDeep),
+                    ),
+                    title: const Text('Preferensi selam'),
+                    subtitle: Text(
+                      _preference == null
+                          ? 'Belum diisi. Isi kuesioner agar spot direkomendasikan sesuai levelmu.'
+                          : 'Level ${_preference!.level.label}. Ketuk untuk mengisi ulang.',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _openPreferences,
+                  ),
+                ),
+                if (_biometricAvailable) ...[
+                  const SizedBox(height: AppSpace.xl),
+                  Card(
+                    child: SwitchListTile(
+                      title: const Text('Login biometrik'),
+                      subtitle: const Text('Masuk dengan sidik jari/wajah di layar login'),
+                      value: _biometricEnabled,
+                      onChanged: _toggleBiometric,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AppSpace.xxl),
+                const Divider(),
+                const SizedBox(height: AppSpace.sm),
+                OutlinedButton.icon(
+                  onPressed: _deleteAccount,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFB3261E),
+                    side: const BorderSide(color: Color(0xFFB3261E)),
+                  ),
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  label: const Text('Hapus akun'),
+                ),
+              ],
             ),
-          ),
-          Center(child: Text('@${user?.username ?? '-'}')),
-          const SizedBox(height: 16),
-          Center(
-            child: FilledButton.icon(
-              onPressed: _pickPhoto,
-              icon: const Icon(Icons.photo_library),
-              label: const Text('Ganti foto'),
-            ),
-          ),
-          if (_biometricAvailable) ...[
-            const SizedBox(height: 24),
-            SwitchListTile(
-              title: const Text('Login biometrik'),
-              subtitle: const Text('Masuk dengan sidik jari/wajah di layar login'),
-              value: _biometricEnabled,
-              onChanged: _toggleBiometric,
-            ),
-          ],
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: _deleteAccount,
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-            icon: const Icon(Icons.delete_forever_outlined),
-            label: const Text('Hapus akun'),
           ),
         ],
       ),
@@ -197,8 +286,8 @@ class _PhotoPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey.shade300,
-      child: const Icon(Icons.person, size: 64),
+      color: AppColors.mintSoft,
+      child: const Icon(Icons.person, size: 64, color: AppColors.tealDeep),
     );
   }
 }

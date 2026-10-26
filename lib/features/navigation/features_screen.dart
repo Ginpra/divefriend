@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
+import 'package:divefriend/core/widgets/ocean_decor.dart';
 import 'package:divefriend/features/ai/ai_chat_screen.dart';
 import 'package:divefriend/features/booking/booking_list_screen.dart';
 import 'package:divefriend/features/converter/converter_screen.dart';
@@ -61,24 +62,61 @@ class FeaturesScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Semua Fitur')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: items.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
-              leading: Icon(item.icon, color: AppColors.teal, size: 30),
-              title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(item.subtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _open(context, item.page),
+      body: Column(
+        children: [
+          const OceanHeader(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Semua Fitur',
+                style: TextStyle(
+                  fontFamily: AppFonts.heading,
+                  fontSize: 30,
+                  color: Colors.white,
+                ),
+              ),
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(AppSpace.lg),
+              itemCount: items.length,
+              separatorBuilder: (context, index) => const SizedBox(height: AppSpace.md),
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 2,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.lg,
+                      vertical: AppSpace.sm,
+                    ),
+                    leading: CircleAvatar(
+                      radius: 26,
+                      backgroundColor: AppColors.mintSoft,
+                      child: Icon(item.icon, color: AppColors.tealDeep, size: 28),
+                    ),
+                    title: Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontFamily: AppFonts.heading,
+                        fontSize: 18,
+                        color: AppColors.navy,
+                      ),
+                    ),
+                    subtitle: Text(
+                      item.subtitle,
+                      style: const TextStyle(height: 1.4, color: AppColors.textMuted),
+                    ),
+                    trailing: const Icon(Icons.chevron_right, color: AppColors.navy),
+                    onTap: () => _open(context, item.page),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

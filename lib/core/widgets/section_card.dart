@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:divefriend/core/app_theme.dart';
 
-/// Kartu putih bergaris tipis untuk satu kelompok informasi (gelombang, harga, jam, kurs).
+/// Kartu putih untuk satu kelompok informasi (gelombang, harga, jam, kurs).
 /// [badge] opsional, dipakai untuk label seperti "Harga simulasi".
 class SectionCard extends StatelessWidget {
   const SectionCard({
@@ -23,49 +23,58 @@ class SectionCard extends StatelessWidget {
     final badgeText = badge;
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: AppSpace.lg),
+      padding: const EdgeInsets.all(AppSpace.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x1F0B2545)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.line),
+        boxShadow: AppShadows.soft,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.teal),
-              const SizedBox(width: 8),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: AppColors.mintSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 20, color: AppColors.tealDeep),
+              ),
+              const SizedBox(width: AppSpace.md),
               Expanded(
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: AppFonts.heading,
+                    fontSize: 18,
                     color: AppColors.navy,
                   ),
                 ),
               ),
               if (badgeText != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0x33F28C28),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.mintSoft,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     badgeText,
                     style: const TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF8A4B00),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.tealDeep,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpace.md),
           child,
         ],
       ),

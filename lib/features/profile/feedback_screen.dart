@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:divefriend/app_services.dart';
 import 'package:divefriend/core/app_theme.dart';
+import 'package:divefriend/core/widgets/ocean_decor.dart';
 import 'package:divefriend/core/formatters.dart';
 import 'package:divefriend/core/validators.dart';
 import 'package:divefriend/services/feedback_store.dart';
@@ -82,8 +83,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Saran & Kesan')),
-      body: ListView(
+      body: Column(
+        children: [
+          const OceanHeader(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Saran & Kesan',
+                style: TextStyle(fontFamily: AppFonts.heading, fontSize: 30, color: Colors.white),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Form(
@@ -161,6 +173,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   ),
                 ),
               ),
+        ],
+            ),
+          ),
         ],
       ),
     );

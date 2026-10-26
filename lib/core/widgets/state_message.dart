@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:divefriend/core/app_theme.dart';
+
 /// Tampilan generik untuk kondisi kosong / error / belum tersedia.
 /// Dipakai ulang oleh Beranda, layar placeholder, dan (nanti) cuaca & koneksi.
 class StateMessage extends StatelessWidget {
@@ -22,21 +24,37 @@ class StateMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpace.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: Colors.grey.shade600),
-            const SizedBox(height: 12),
+            Container(
+              width: 88,
+              height: 88,
+              decoration: const BoxDecoration(
+                color: AppColors.mintSoft,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 44, color: AppColors.tealDeep),
+            ),
+            const SizedBox(height: AppSpace.lg),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontFamily: AppFonts.heading,
+                fontSize: 22,
+                color: AppColors.navy,
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(height: 1.5, color: AppColors.textMuted),
+            ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpace.xl),
               FilledButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
