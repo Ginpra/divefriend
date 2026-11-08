@@ -31,38 +31,3 @@ class Secrets {
   static const String sepoliaPrivateKey = '';
 }
 
-lib/
-├─ main.dart            → titik awal: siapkan DB, HTTP, semua "service", cek session
-├─ app.dart             → widget akar (MaterialApp), tema, Splash → Login/Beranda
-├─ app_services.dart    → "kotak peralatan": kumpulan service yang dioper ke tiap layar
-├─ config/secrets.dart  → kunci API (TIDAK ada di Git, jadi memang tidak ketemu)
-│
-├─ core/                → LOGIKA MURNI (tanpa tampilan): rumus & aturan
-│   ├─ app_theme.dart       warna, font, spasi (AppColors, AppSpace, AppFonts)
-│   ├─ level_classifier.dart  k-NN level penyelam
-│   ├─ log_chain.dart / anchor_check.dart   hash chain & cek blockchain
-│   ├─ compass_math.dart, geo_math.dart     arah & jarak GPS
-│   ├─ shake_detector.dart, vec3.dart       deteksi goyang (sensor)
-│   ├─ encounter_grade.dart                 grade game (50/30/15/5)
-│   ├─ time_zones.dart, booking_math.dart, validators.dart, formatters.dart
-│   └─ widgets/             widget bersama (logo, kartu, banner, dll)
-│
-├─ data/                → DATA
-│   ├─ local/app_database.dart     SQLite: bikin tabel
-│   ├─ models/                     class data (Spot, AppUser, Booking, LogEntry, ...)
-│   ├─ repositories/               akses DB: interface + versi sqlite_*
-│   ├─ remote/                     Supabase (spot_remote_source.dart, supabase_config.dart)
-│   └─ seed/                       data awal 15 spot
-│
-├─ services/            → KERJA DI LUAR LAYAR
-│   ├─ auth_service.dart, password_hasher.dart, biometric_service.dart   login
-│   ├─ marine_service.dart (Open-Meteo), exchange_rate_service.dart (Frankfurter),
-│   │  gemini_service.dart (Gemini), blockchain_service.dart (Sepolia)   API
-│   ├─ sensor_service.dart, location_service.dart                        sensor & GPS
-│   ├─ spot_sync_service.dart       Supabase → SQLite
-│   └─ notification_service.dart, logbook_service.dart, dll
-│
-└─ features/            → LAYAR (UI), satu folder per fitur
-    ├─ splash/, auth/ (login, register), navigation/ (main_shell)
-    ├─ home/, spot/, map/, booking/, converter/, direction/
-    ├─ logbook/, game/, ai/, preferences/, profile/
